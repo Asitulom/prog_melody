@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Melodías</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            padding: 0;
+            list-style: none;
+        }
+        li {
+            background-color: #f2f2f2;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Generador de Melodías</h1>
+
+    <label for="tempo">Tempo:</label>
+    <input type="number" id="tempo" placeholder="Ejemplo: 120" value="120">
+
+    <label for="tone">Tono:</label>
+    <input type="text" id="tone" placeholder="Ejemplo: C" value="C">
+
+    <label for="emotion">Emoción:</label>
+    <select id="emotion">
+        <option value="happy">Happy</option>
+        <option value="sad">Sad</option>
+        <option value="excited">Excited</option>
+    </select>
+
+    <button onclick="generateMelody()">Generar Melodía</button>
+
+    <h2>Melodía Generada:</h2>
+    <ul id="melody-list"></ul>
+
+    <script>
+        async function generateMelody() {
+            const tempo = document.getElementById('tempo').value;
+            const tone = document.getElementById('tone').value;
+            const emotion = document.getElementById('emotion').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tempo: parseInt(tempo),
+                        tone: tone,
+                        emotion: emotion
+                    })
+                });
+
+                const data = await response.json();
+                const melodyList = document.getElementById('melody-list');
+                melodyList.innerHTML = '';  // Limpiar la lista anterior
+
+                data.melody.forEach(note => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = note;
+                    melodyList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error al generar la melodía:', error);
+            }
+        }
+    </script>
+
+</body>
+</html>
