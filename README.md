@@ -13,7 +13,6 @@ git clone https://github.com/Asitulom/prog_melody.git
 cd C:\Users\Asier\Documents\PFG\prog_melody
 pip install -r requirements.txt
 
-
 3. **Ejecutar el backend:**
 
 uvicorn backend.app:app --reload
