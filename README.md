@@ -29,6 +29,13 @@ python -m http.server 8001
 
 http://localhost:8001
 
+6. **Leer archivos MIDI**
+
+cd C:\Users\Asier\Documents\PFG\prog_melody\ai
+python process_midi.py
+
+
+
 ##  Estructura del proyecto
 
 ```
