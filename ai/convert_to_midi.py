@@ -4,7 +4,9 @@ from mido import Message, MidiFile, MidiTrack
 # Cargar la melodía generada desde JSON
 def load_generated_melody(json_path):
     with open(json_path, "r") as file:
-        return json.load(file)
+        data = json.load(file)  # Cargar JSON como diccionario
+    first_key = list(data.keys())[0]  # Obtener la primera clave (nombre del MIDI)
+    return data[first_key]  # Devolver solo la lista de notas
 
 # Convertir JSON a MIDI
 def generate_midi(melody_data, output_midi_path="generated_melody.mid"):
@@ -26,7 +28,6 @@ def generate_midi(melody_data, output_midi_path="generated_melody.mid"):
 
 # ---------- EJECUCIÓN DEL SCRIPT ----------
 if __name__ == "__main__":
-
     input_json = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\sad_midi_data.json"
     output_midi = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\generated_melody.mid"
 
