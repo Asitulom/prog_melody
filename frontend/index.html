@@ -58,13 +58,10 @@
     <select id="emotion">
         <option value="happy">Happy</option>
         <option value="sad">Sad</option>
-        <option value="excited">Excited</option>
     </select>
 
-    <button onclick="generateMelody()">Generar Melodía</button>
-
-    <h2>Melodía Generada:</h2>
-    <ul id="melody-list"></ul>
+    <button id="generateMidi">Generar y Descargar MIDI</button>
+    <a id="downloadLink" style="display: none;">Descargar MIDI</a>
 
     <script>
         async function generateMelody() {
@@ -73,6 +70,7 @@
             const emotion = document.getElementById('emotion').value;
 
             try {
+                // Paso 1: Generar la melodía en JSON
                 const response = await fetch('http://127.0.0.1:8000/generate', {
                     method: 'POST',
                     headers: {
@@ -86,18 +84,28 @@
                 });
 
                 const data = await response.json();
-                const melodyList = document.getElementById('melody-list');
-                melodyList.innerHTML = '';  // Limpiar la lista anterior
+                console.log("Melodía generada:", data);
 
-                data.melody.forEach(note => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = note;
-                    melodyList.appendChild(listItem);
-                });
+                // Paso 2: Convertir a MIDI y descargar
+                const midiResponse = await fetch('http://127.0.0.1:8000/convert_to_midi/');
+                if (midiResponse.ok) {
+                    const blob = await midiResponse.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = url;
+                    downloadLink.download = "generated_melody.mid";
+                    downloadLink.style.display = "block";
+                    downloadLink.innerText = "Descargar MIDI";
+                } else {
+                    alert("Error al generar el archivo MIDI");
+                }
             } catch (error) {
                 console.error('Error al generar la melodía:', error);
             }
         }
+
+        document.getElementById("generateMidi").addEventListener("click", generateMelody);
     </script>
 
 </body>
