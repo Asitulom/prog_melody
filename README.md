@@ -34,7 +34,10 @@ http://localhost:8001
 cd C:\Users\Asier\Documents\PFG\prog_melody\ai
 python process_midi.py
 
+6. **Leer archivos MIDI**
 
+cd C:\Users\Asier\Documents\PFG\prog_melody\ai
+python convert_to_midi.py
 
 ##  Estructura del proyecto
 
