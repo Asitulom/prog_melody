@@ -1,10 +1,12 @@
+#process_midi.py
+
 import mido
 import os
 import json
 
 def extract_midi_data(midi_path):
     """
-    Extrae notas, tiempo de inicio, duración y velocidad (intensidad) de un archivo MIDI.
+    Extrae notas, tiempo de inicio, duración y velocidad (intensidad) de un archivo MIDI y guarda en JSON
     """
     mid = mido.MidiFile(midi_path)
     notes = []
