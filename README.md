@@ -22,14 +22,9 @@ http://127.0.0.1:8000/docs
 4. **Ejecutar el frontend:**
 
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
-python -m http.server 8001
-
-
-5. **Abrir el frontend en el navegador:**
-
 http://localhost:8001
 
-6. **Leer archivos MIDI**
+5. **Leer archivos MIDI**
 
 cd C:\Users\Asier\Documents\PFG\prog_melody\ai
 python process_midi.py
