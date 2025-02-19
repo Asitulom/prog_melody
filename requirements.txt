@@ -3,3 +3,6 @@ uvicorn
 mido
 pandas
 numpy
+tensorflow             
+scikit-learn          
+pickle-mixin           
