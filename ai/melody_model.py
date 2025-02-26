@@ -1,4 +1,3 @@
- 
 import json
 import numpy as np
 import tensorflow as tf
@@ -7,23 +6,29 @@ from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
 import pickle
+import os
+
+# Obtener la ruta de la carpeta actual
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Rutas de los archivos
+JSON_PATH = os.path.join(BASE_DIR, "sad_midi_data.json")
+NOTE_SCALER_PATH = os.path.join(BASE_DIR, "note_scaler.pkl")
+DURATION_SCALER_PATH = os.path.join(BASE_DIR, "duration_scaler.pkl")
+VELOCITY_SCALER_PATH = os.path.join(BASE_DIR, "velocity_scaler.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "melody_model.h5")
 
 # Cargar datos de sad_midi_data.json
-def load_midi_data(json_path):
-    with open(json_path, "r") as file:
+def load_midi_data():
+    with open(JSON_PATH, "r") as file:
         data = json.load(file)
 
-    melodies = []
-    for melody_name in data:
-        melodies.append(data[melody_name])
-
+    melodies = list(data.values())  # Extrae las melodías en una lista
     return melodies
 
 # Preprocesamiento de datos
 def preprocess_data(melodies):
-    note_sequences = []
-    durations = []
-    velocities = []
+    note_sequences, durations, velocities = [], [], []
 
     for melody in melodies:
         for note in melody:
@@ -37,20 +42,18 @@ def preprocess_data(melodies):
     velocities = np.array(velocities).reshape(-1, 1)
 
     # Normalización (0-1) con MinMaxScaler
-    note_scaler = MinMaxScaler()
-    duration_scaler = MinMaxScaler()
-    velocity_scaler = MinMaxScaler()
-
+    note_scaler, duration_scaler, velocity_scaler = MinMaxScaler(), MinMaxScaler(), MinMaxScaler()
+    
     note_sequences = note_scaler.fit_transform(note_sequences)
     durations = duration_scaler.fit_transform(durations)
     velocities = velocity_scaler.fit_transform(velocities)
 
-    # Guardar escaladores para desnormalizar después
-    with open("ai/note_scaler.pkl", "wb") as f:
+    # Guardar escaladores en la misma carpeta que el script
+    with open(NOTE_SCALER_PATH, "wb") as f:
         pickle.dump(note_scaler, f)
-    with open("ai/duration_scaler.pkl", "wb") as f:
+    with open(DURATION_SCALER_PATH, "wb") as f:
         pickle.dump(duration_scaler, f)
-    with open("ai/velocity_scaler.pkl", "wb") as f:
+    with open(VELOCITY_SCALER_PATH, "wb") as f:
         pickle.dump(velocity_scaler, f)
 
     # Crear secuencias de entrenamiento
@@ -62,10 +65,7 @@ def preprocess_data(melodies):
                             velocities[i:i+sequence_length])))
         y.append(note_sequences[i+sequence_length])
 
-    X = np.array(X)
-    y = np.array(y)
-
-    return X, y
+    return np.array(X), np.array(y)
 
 # Definir el modelo LSTM
 def build_model(input_shape):
@@ -82,16 +82,16 @@ def build_model(input_shape):
 
 # Entrenar el modelo
 def train_model():
-    json_path = "ai/sad_midi_data.json"
-    melodies = load_midi_data(json_path)
+    melodies = load_midi_data()
     X, y = preprocess_data(melodies)
 
     model = build_model((X.shape[1], X.shape[2]))
     model.fit(X, y, epochs=50, batch_size=32, validation_split=0.2)
 
-    # Guardar modelo entrenado
-    model.save("ai/melody_model.h5")
-    print("✅ Modelo entrenado y guardado como melody_model.h5")
+    # Guardar modelo entrenado en la misma carpeta que el script
+    model.save(MODEL_PATH)
+    print(f"✅ Modelo entrenado y guardado como {MODEL_PATH}")
 
 if __name__ == "__main__":
     train_model()
+    
