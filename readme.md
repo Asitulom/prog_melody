@@ -28,6 +28,7 @@ git clone https://github.com/Asitulom/prog_melody.git
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
 pip install -r requirements.txt
+pip install mido
 
 3. **Leer archivos MIDI**
 
@@ -50,7 +51,6 @@ python convert_to_midi.py
 ✔ Esto debe generar un archivo generated_melody.mid
 
 6. **Iniciar el backend**
-
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
 uvicorn backend.app:app --reload
