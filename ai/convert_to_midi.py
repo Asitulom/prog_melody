@@ -2,6 +2,7 @@
 
 
 import json
+import mido
 from mido import Message, MidiFile, MidiTrack
 
 # Cargar la melodía generada desde JSON
