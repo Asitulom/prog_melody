@@ -8,8 +8,8 @@ Este proyecto es un generador básico de melodías utilizando un backend en **Fa
 ## 🚀 Cómo ejecutar la aplicación
 
 
-py -3.9 -m venv venv
-
+cd C:\Users\Asier\Documents\PFG\prog_melody
+python -m venv venv
 venv\Scripts\activate
 
 
