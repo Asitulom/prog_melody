@@ -1,15 +1,8 @@
+#README.MD
+
 # Generador de Melodías con IA 🎵
 
 Este proyecto es un generador básico de melodías utilizando un backend en **FastAPI** y un frontend en **HTML, CSS y JavaScript**. Permite a los usuarios generar melodías originales ajustando parámetros como el tempo, el tono y la emoción.
-
-
-
-
-
-
-
-
-
 
 
 ## 🚀 Cómo ejecutar la aplicación
