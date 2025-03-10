@@ -9,13 +9,13 @@ Este proyecto es un generador básico de melodías utilizando un backend en **Fa
 
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
-python -m venv venv
+## python -m venv venv
 venv\Scripts\activate
 
 
 1. **Clonar el repositorio:**
 
-git clone https://github.com/Asitulom/prog_melody.git
+<3git clone https://github.com/Asitulom/prog_melody.git
 
 2. **Instalar dependencias:**
 
