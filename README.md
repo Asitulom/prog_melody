@@ -15,7 +15,7 @@ venv\Scripts\activate
 
 1. **Clonar el repositorio:**
 
-<3git clone https://github.com/Asitulom/prog_melody.git
+git clone https://github.com/Asitulom/prog_melody.git
 
 2. **Instalar dependencias:**
 
@@ -54,7 +54,6 @@ http://127.0.0.1:8000/docs
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
 python -m http.server 8001
 http://localhost:8001
-
 
 
 
