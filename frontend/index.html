@@ -1,73 +1,151 @@
-
-<!-- index.html -->
-
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Melodías</title>
+    <title>Generador de Melodías 🎵</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+
     <style>
+        /* Fuente personalizada */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Estilos generales */
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #4CAF50, #1B5E20);
+            margin: 0;
+            color: white;
+            text-align: center;
+            animation: backgroundAnimation 10s infinite alternate;
         }
+
+        /* Animación de fondo */
+        @keyframes backgroundAnimation {
+            0% {
+                background: linear-gradient(135deg, #4CAF50, #1B5E20);
+            }
+            100% {
+                background: linear-gradient(135deg, #66BB6A, #2E7D32);
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            max-width: 400px;
+            width: 90%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.4);
+        }
+
         h1 {
-            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 26px;
+            color: #FFF;
+            font-weight: 600;
         }
+
         label {
             display: block;
-            margin-top: 10px;
+            margin: 12px 0 6px;
+            font-size: 15px;
+            font-weight: 400;
         }
+
         input, select {
-            margin-bottom: 10px;
-            padding: 8px;
             width: 100%;
-            max-width: 300px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
             border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            background: white;
+            border: 2px solid #FFC107;
+        }
+
+        button {
+            width: 100%;
+            background: #FFC107;
+            color: #333;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+
         button:hover {
-            background-color: #45a049;
+            background: #FFA000;
+            transform: scale(1.05);
         }
-        ul {
-            padding: 0;
-            list-style: none;
+
+        #downloadLink {
+            display: none;
+            margin-top: 15px;
+            background: #FF5722;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        li {
-            background-color: #f2f2f2;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 4px;
+
+        #downloadLink:hover {
+            background: #E64A19;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 
-    <h1>Generador de Melodías</h1>
+    <div class="container">
+        <h1>🎼 Generador de Melodías</h1>
 
-    <label for="tempo">Tempo:</label>
-    <input type="number" id="tempo" placeholder="Ejemplo: 120" value="120">
+        <label for="tempo">Tempo:</label>
+        <input type="number" id="tempo" placeholder="Ejemplo: 120" value="120">
 
-    <label for="tone">Tono:</label>
-    <input type="text" id="tone" placeholder="Ejemplo: C" value="C">
+        <label for="tone">Tono:</label>
+        <input type="text" id="tone" placeholder="Ejemplo: C" value="C">
 
-    <label for="emotion">Emoción:</label>
-    <select id="emotion">
-        <option value="happy">Happy</option>
-        <option value="sad">Sad</option>
-    </select>
+        <label for="emotion">Emoción:</label>
+        <select id="emotion">
+            <option value="happy">Happy 😊</option>
+            <option value="sad">Sad 😢</option>
+            <option value="excited">Excited 🤩</option>
+        </select>
 
-    <button id="generateMidi">Generar y Descargar MIDI</button>
-    <a id="downloadLink" style="display: none;">Descargar MIDI</a>
+        <button id="generateMidi">🎵 Generar y Descargar MIDI</button>
+        <a id="downloadLink">⬇ Descargar MIDI</a>
+    </div>
 
     <script>
         async function generateMelody() {
@@ -79,14 +157,8 @@
                 // Paso 1: Generar la melodía en JSON
                 const response = await fetch('http://127.0.0.1:8000/generate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        tempo: parseInt(tempo),
-                        tone: tone,
-                        emotion: emotion
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion })
                 });
 
                 const data = await response.json();
@@ -101,8 +173,8 @@
                     const downloadLink = document.getElementById('downloadLink');
                     downloadLink.href = url;
                     downloadLink.download = "generated_melody.mid";
-                    downloadLink.style.display = "block";
-                    downloadLink.innerText = "Descargar MIDI";
+                    downloadLink.style.display = "flex";
+                    downloadLink.innerText = "⬇ Descargar MIDI";
                 } else {
                     alert("Error al generar el archivo MIDI");
                 }
