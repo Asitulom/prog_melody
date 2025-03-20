@@ -58,3 +58,19 @@ http://localhost:8001
 
 
 
+DOCKER:
+
+cd C:\Users\Asier\Documents\PFG\prog_melody
+
+docker-compose down
+
+docker-compose up --build
+
+
+**Backend**
+
+http://127.0.0.1:8000/docs
+
+**Frontend**
+
+ http://localhost:8001
