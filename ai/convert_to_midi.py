@@ -19,23 +19,21 @@ def load_generated_melody(json_path):
 
 # Convertir JSON a MIDI
 def generate_midi(melody_data, output_midi_path="generated_melody.mid"):
-    midi = MidiFile()  # Crear archivo MIDI
-    track = MidiTrack()  # Crear una pista
-    midi.tracks.append(track)  # Agregar la pista al archivo
+    midi = MidiFile()
+    track = MidiTrack()
+    midi.tracks.append(track)
 
-    # Parámetros de duración y velocidad predeterminados
-    duration = 300  # Tiempo entre nota_on y nota_off (ajustable)
-    velocity = 100  # Intensidad de la nota
+    for note_info in melody_data:
+        midi_note = note_info["note"]
+        velocity = note_info.get("velocity", 100)
+        duration = note_info.get("duration", 300)
 
-    for note in melody_data:
-        midi_note = NOTE_MAPPING.get(note, 60)  # Convertir nota a número MIDI (default: C=60)
         track.append(Message("note_on", note=midi_note, velocity=velocity, time=0))
         track.append(Message("note_off", note=midi_note, velocity=velocity, time=duration))
 
-    # Guardar el archivo MIDI
     midi.save(output_midi_path)
     print(f"✅ Archivo MIDI guardado en {output_midi_path}")
-
+    
 # ---------- EJECUCIÓN DEL SCRIPT ----------
 if __name__ == "__main__":
     input_json = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\generated_melody.json"

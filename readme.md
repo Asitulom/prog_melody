@@ -8,53 +8,35 @@ Este proyecto es un generador básico de melodías utilizando un backend en **Fa
 ## 🚀 Cómo ejecutar la aplicación
 
 
-cd C:\Users\Asier\Documents\PFG\prog_melody
-## python -m venv venv
-venv\Scripts\activate
-
-
-1. **Clonar el repositorio:**
-
 git clone https://github.com/Asitulom/prog_melody.git
 
-2. **Instalar dependencias:**
 
+# 1. Ir a la carpeta del proyecto
 cd C:\Users\Asier\Documents\PFG\prog_melody
+
+# 2. Activar entorno virtual
+venv\Scripts\activate
+
+# 3. Instalar dependencias
 pip install -r requirements.txt
 pip install mido
 
-3. **Leer archivos MIDI**
-
-cd C:\Users\Asier\Documents\PFG\prog_melody\ai
+# 4. Procesar archivos MIDI (esto crea sad_midi_data.json)
+cd ai
 python process_midi.py
-✅ Datos guardados en sad_midi_data.json
 
-4. **Entrenar modelo**
-
+# 5. Entrenar el modelo LSTM (esto crea melody_model.h5 y los escaladores)
 python melody_model.py
-✅ Modelo entrenado y guardado como melody_model.h5
 
-4. **Generar melodía**
-
-python generate.py
-
-5. **JSON a MIDI**
-
-python convert_to_midi.py
-✔ Esto debe generar un archivo generated_melody.mid
-
-6. **Iniciar el backend**
-
-cd C:\Users\Asier\Documents\PFG\prog_melody
+# 6. Volver a la raíz del proyecto para lanzar el backend
+cd ..
 uvicorn backend.app:app --reload
-http://127.0.0.1:8000/docs
+# Abre en el navegador: http://127.0.0.1:8000/docs
 
-6. **Iniciar el frontend**
-
+# 7. En una nueva terminal (o nueva pestaña)
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
 python -m http.server 8001
 http://localhost:8001
-
 
 
 

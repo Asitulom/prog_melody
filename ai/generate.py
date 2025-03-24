@@ -23,5 +23,5 @@ def generate_melody_from_parameters(tempo, tone, emotion):
         melody += ["A", "D", "F"]
     elif emotion.lower() == "excited":
         melody += [random.choice(["C", "G", "B"])] * 2
-
+    
     return melody
