@@ -31,7 +31,7 @@ python melody_model.py
 # 6. Volver a la raíz del proyecto para lanzar el backend
 cd ..
 uvicorn backend.app:app --reload
-# Abre en el navegador: http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/docs
 
 # 7. En una nueva terminal (o nueva pestaña)
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
