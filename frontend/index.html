@@ -1,5 +1,3 @@
-<!-- index-->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,64 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Melodías 🎵</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #2E7D32;
+            color: white;
+        }
+
+        header {
+            background-color: #1B5E20;
+            padding: 30px 0 10px;
+            text-align: center;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 600;
+        }
+
+        .navbar {
+            margin-top: 15px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #2E7D32;
-            margin: 0;
-            color: white;
-            text-align: center;
+            gap: 30px;
+            background-color: #256029;
+            padding: 15px 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #43A047;
+        }
+
+        .navbar a.active {
+            background-color: #66BB6A;
+            color: #1B1B1B;
         }
 
         .container {
+            max-width: 600px;
+            margin: 60px auto;
             background: rgba(255, 255, 255, 0.2);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            max-width: 400px;
-            width: 100%;
-            transition: all 0.3s ease-in-out;
-        }
-
-        h1 {
-            margin-bottom: 15px;
-            font-size: 28px;
-            color: #FFF;
-            font-weight: 600;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
         }
 
         label {
             display: block;
-            margin: 12px 0 6px;
-            font-size: 15px;
+            margin: 20px 0 8px;
+            font-size: 18px;
             font-weight: 400;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 10px;
+            padding: 14px;
             font-size: 16px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            border: none;
             outline: none;
-            transition: 0.3s ease-in-out;
-            display: block;
-            box-sizing: border-box;
-        }
-
-        input::placeholder {
-            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
         }
 
         button {
@@ -72,30 +92,30 @@
             background: #FFC107;
             color: #333;
             border: none;
-            padding: 14px;
+            padding: 16px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
             font-weight: 600;
             box-shadow: 0px 5px 0px #E0A800;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         button:hover {
             background: #FFA000;
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         #downloadLink {
             display: none;
-            margin-top: 15px;
+            margin-top: 20px;
             background: #FF5722;
             color: white;
-            padding: 12px;
+            padding: 14px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: bold;
@@ -103,13 +123,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             box-shadow: 0px 5px 0px #D84315;
         }
 
         #statusMessage {
             display: none;
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 16px;
             font-weight: bold;
             color: #FFD700;
@@ -117,7 +137,7 @@
 
         #errorMessage {
             display: none;
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 16px;
             font-weight: bold;
             color: #FF4444;
@@ -125,9 +145,9 @@
 
         #loadingSpinner {
             display: none;
-            margin-top: 10px;
-            width: 30px;
-            height: 30px;
+            margin: 15px auto;
+            width: 40px;
+            height: 40px;
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top: 4px solid #FFC107;
@@ -141,10 +161,16 @@
     </style>
 </head>
 <body>
+    <header>
+        <h1>🎺 Generador de Melodías</h1>
+        <nav class="navbar">
+            <a href="index.html" class="active">Generador</a>
+            <a href="login.html">Registro / Iniciar sesión</a>
+            <a href="usuarios.html">MIDIs de otros usuarios</a>
+        </nav>
+    </header>
 
     <div class="container">
-        <h1>🎼 Generador de Melodías</h1>
-
         <label for="tempo">Tempo:</label>
         <input type="number" id="tempo" placeholder="Ejemplo: 120">
 
@@ -174,30 +200,27 @@
         const loadingSpinner = document.getElementById("loadingSpinner");
         const downloadLink = document.getElementById('downloadLink');
 
-        // Validación: Verificar si los campos están vacíos
         if (!tempo || !tone) {
-            errorMessage.style.display = "block"; // Mostrar mensaje de error
+            errorMessage.style.display = "block";
             statusMessage.style.display = "none";
             loadingSpinner.style.display = "none";
             return;
         }
 
-        errorMessage.style.display = "none"; // Ocultar mensaje de error si todo está bien
+        errorMessage.style.display = "none";
         statusMessage.style.display = "block";
         statusMessage.innerText = "Generando melodía...";
         loadingSpinner.style.display = "block";
 
         try {
             const startTime = Date.now();
-
-            const response = await fetch('http://127.0.0.1:8000/generate', {
+            await fetch('http://127.0.0.1:8000/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion })
             });
 
             const midiResponse = await fetch('http://127.0.0.1:8000/convert_to_midi/');
-            
             if (midiResponse.ok) {
                 const blob = await midiResponse.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -219,6 +242,5 @@
 
     document.getElementById("generateMidi").addEventListener("click", generateMelody);
     </script>
-
 </body>
 </html>
