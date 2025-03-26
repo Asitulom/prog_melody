@@ -8,3 +8,7 @@ numpy
 tensorflow==2.15.0           
 scikit-learn          
 pickle-mixin           
+passlib[bcrypt]
+python-jose[cryptography]
+sqlalchemy
+python-multipart

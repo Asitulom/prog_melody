@@ -19,7 +19,6 @@ venv\Scripts\activate
 
 # 3. Instalar dependencias
 pip install -r requirements.txt
-pip install mido
 
 # 4. Procesar archivos MIDI (esto crea sad_midi_data.json)
 cd ai
