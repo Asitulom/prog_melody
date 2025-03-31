@@ -1,3 +1,4 @@
+<!-- login.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,110 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de Sesión</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #2E7D32;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            color: white;
-        }
-
-        .navbar {
-            width: 100%;
-            background-color: #1B5E20;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            position: absolute;
-            top: 0;
-        }
-
-        .navbar a {
-            color: white;
-            margin: 0 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            transition: color 0.3s;
-        }
-
-        .navbar a:hover {
-            color: #FFD600;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 40px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0px 10px 20px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            color: #FFF;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.7);
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            background: #FFC107;
-            color: #333;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            font-weight: 600;
-            box-shadow: 0px 5px 0px #E0A800;
-        }
-
-        button:hover {
-            background: #FFA000;
-            transform: scale(1.05);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="navbar">
-        <a href="index.html">🎼 Generador</a>
-        <a href="usuarios.html">🎧 MIDIs de Usuarios</a>
-        <a href="login.html">🔐 Login / Registro</a>
-    </div>
+    <header>
+        <h1> Generador de Melodías</h1>
+        <nav class="navbar">
+            <a href="index.html">Generador</a>
+            <a href="login.html" class="active">Registro / Iniciar sesión</a>
+            <a href="usuarios.html">MIDIs de otros usuarios</a>
+        </nav>
+    </header>
 
     <div class="container">
-        <h1>Iniciar Sesión</h1>
-        <input type="text" placeholder="Nombre de usuario">
-        <input type="password" placeholder="Contraseña">
+        <h2>Iniciar Sesión</h2>
+        <label for="username-login">Nombre de usuario:</label>
+        <input id="username-login" type="text" placeholder="Nombre de usuario">
+
+        <label for="password-login">Contraseña:</label>
+        <input id="password-login" type="password" placeholder="Contraseña">
+
         <button>Entrar</button>
 
-        <h1 style="margin-top: 30px;">Registrarse</h1>
-        <input type="text" placeholder="Nuevo usuario">
-        <input type="password" placeholder="Contraseña">
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid rgba(255, 255, 255, 0.4);">
+
+        <h2>Registrarse</h2>
+        <label for="username-register">Nuevo usuario:</label>
+        <input id="username-register" type="text" placeholder="Nuevo usuario">
+
+        <label for="password-register">Contraseña:</label>
+        <input id="password-register" type="password" placeholder="Contraseña">
+
         <button>Registrar</button>
     </div>
+    <footer>
+        <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+    </footer>
 </body>
 </html>
