@@ -1,3 +1,4 @@
+/* styles.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 :root {
@@ -27,6 +28,9 @@ body {
     background-position: center;
     background-attachment: fixed;
     animation: fadeIn 0.8s ease-in-out both;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes fadeIn {
@@ -49,7 +53,7 @@ header {
     padding: 25px 0 10px;
     text-align: center;
     box-shadow: 0 2px 15px var(--shadow);
-    overflow: hidden;
+    overflow: visible;
 }
 
 header::before {
@@ -88,22 +92,24 @@ header h1 {
     gap: 8px;
 }
 
-.logo-icon {
-    font-size: 24px;
-    margin-right: 5px;
-}
-
 .navbar {
     margin-top: 15px;
     display: flex;
-    justify-content: center;
-    gap: 30px;
+    justify-content: space-between;
+    align-items: center;
     background: rgba(40, 40, 40, 0.9);
     backdrop-filter: blur(6px);
-    padding: 14px 0;
+    padding: 14px 30px;
     border-radius: 0 0 12px 12px;
     box-shadow: 0 4px 10px var(--shadow);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar .nav-center {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex: 1;
 }
 
 .navbar a {
@@ -137,6 +143,7 @@ header h1 {
     box-shadow: 0 12px 35px var(--shadow);
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.15);
+    flex: 1;
 }
 
 label {
@@ -204,21 +211,15 @@ button:hover {
     transition: 0.3s ease-in-out;
 }
 
-#statusMessage {
+#statusMessage, #errorMessage {
     display: none;
     margin-top: 20px;
     font-size: 15px;
     font-weight: bold;
-    color: var(--accent);
 }
 
-#errorMessage {
-    display: none;
-    margin-top: 20px;
-    font-size: 15px;
-    font-weight: bold;
-    color: var(--error);
-}
+#statusMessage { color: var(--accent); }
+#errorMessage { color: var(--error); }
 
 #loadingSpinner {
     display: none;
@@ -236,7 +237,6 @@ button:hover {
     100% { transform: rotate(360deg); }
 }
 
-/* Fondo animado con notas */
 .floating-notes {
     pointer-events: none;
     position: fixed;
@@ -253,22 +253,6 @@ button:hover {
 @keyframes floatNotes {
     from { background-position: 0 0; }
     to { background-position: 0 -1000px; }
-}
-
-@media (max-width: 600px) {
-    .container {
-        width: 90%;
-        padding: 25px;
-    }
-
-    .navbar {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    header h1 {
-        font-size: 22px;
-    }
 }
 
 footer {
@@ -288,12 +272,54 @@ footer:hover {
     opacity: 0.9;
 }
 
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.container {
-    flex: 1;
-}
+.profile-menu {
+    position: relative;
+  }
+  
+  .profile-icon {
+    width: 32px;
+    height: 32px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    padding: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .dropdown-content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    background-color: rgba(40, 40, 40, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    min-width: 180px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+  }
+  
+  .dropdown-content.show-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .dropdown-content a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+  
+  .dropdown-content a:hover {
+    background: #333;
+  }
+  
+  .profile-menu:hover .dropdown-content {
+    display: block;
+  }

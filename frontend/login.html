@@ -2,45 +2,61 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio de Sesión</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1> Generador de Melodías</h1>
-        <nav class="navbar">
-            <a href="index.html">Generador</a>
-            <a href="login.html" class="active">Registro / Iniciar sesión</a>
-            <a href="usuarios.html">MIDIs de otros usuarios</a>
-        </nav>
-    </header>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="profile-icon" />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="#">Mis melodías</a>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-    <div class="container">
-        <h2>Iniciar Sesión</h2>
-        <label for="username-login">Nombre de usuario:</label>
-        <input id="username-login" type="text" placeholder="Nombre de usuario">
+  <div class="container">
+    <h2>Iniciar Sesión</h2>
+    <label for="username-login">Nombre de usuario:</label>
+    <input id="username-login" type="text" placeholder="Nombre de usuario" />
+    <label for="password-login">Contraseña:</label>
+    <input id="password-login" type="password" placeholder="Contraseña" />
+    <button>Entrar</button>
+  </div>
 
-        <label for="password-login">Contraseña:</label>
-        <input id="password-login" type="password" placeholder="Contraseña">
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
 
-        <button>Entrar</button>
+  <script>
+    // 👤 Menú de perfil con retardo al ocultar
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
 
-        <hr style="margin: 40px 0; border: none; border-top: 2px solid rgba(255, 255, 255, 0.4);">
+    let hideTimeout;
 
-        <h2>Registrarse</h2>
-        <label for="username-register">Nuevo usuario:</label>
-        <input id="username-register" type="text" placeholder="Nuevo usuario">
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
 
-        <label for="password-register">Contraseña:</label>
-        <input id="password-register" type="password" placeholder="Contraseña">
-
-        <button>Registrar</button>
-    </div>
-    <footer>
-        <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
-    </footer>
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000); // 🕒 1 segundo
+    });
+  </script>
 </body>
 </html>

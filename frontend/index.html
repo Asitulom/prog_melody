@@ -3,97 +3,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Melodías 🎵</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Melodías 🎵</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Generador de Melodías</h1>
-        <nav class="navbar">
-            <a href="index.html" class="active">Generador</a>
-            <a href="login.html">Registro / Iniciar sesión</a>
-            <a href="usuarios.html">MIDIs de otros usuarios</a>
-        </nav>
-    </header>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html" class="active">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+          alt="Perfil"
+          class="profile-icon"
+        />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="#">Mis melodías</a>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-    <div class="container">
-        <label for="tempo">Tempo:</label>
-        <input type="number" id="tempo" placeholder="Ejemplo: 120">
+  <div class="container">
+    <label for="tempo">Tempo:</label>
+    <input type="number" id="tempo" placeholder="Ejemplo: 120" />
+    <label for="tone">Tono:</label>
+    <input type="text" id="tone" placeholder="Ejemplo: C" />
+    <label for="emotion">Emoción:</label>
+    <select id="emotion">
+      <option value="happy">Happy 😊</option>
+      <option value="sad">Sad 😢</option>
+    </select>
+    <button id="generateMidi">🎵 Generar MIDI</button>
+    <div id="loadingSpinner"></div>
+    <p id="statusMessage">Generando melodía...</p>
+    <p id="errorMessage">❌ Debes ingresar un Tempo y un Tono.</p>
+    <a id="downloadLink">⬇ Descargar MIDI</a>
+  </div>
 
-        <label for="tone">Tono:</label>
-        <input type="text" id="tone" placeholder="Ejemplo: C">
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
 
-        <label for="emotion">Emoción:</label>
-        <select id="emotion">
-            <option value="happy">Happy 😊</option>
-            <option value="sad">Sad 😢</option> 
-        </select>
-
-        <button id="generateMidi">🎵 Generar MIDI</button>
-        <div id="loadingSpinner"></div>
-        <p id="statusMessage">Generando melodía...</p>
-        <p id="errorMessage">❌ Debes ingresar un Tempo y un Tono.</p>
-        <a id="downloadLink">⬇ Descargar MIDI</a>
-    </div>
-
-    <footer>
-        <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
-    </footer>
-
-    <script>
+  <script>
+    // 🎵 Función para generar la melodía (ya la tenías)
     async function generateMelody() {
-        const tempo = document.getElementById('tempo').value;
-        const tone = document.getElementById('tone').value;
-        const emotion = document.getElementById('emotion').value;
-        const statusMessage = document.getElementById("statusMessage");
-        const errorMessage = document.getElementById("errorMessage");
-        const loadingSpinner = document.getElementById("loadingSpinner");
-        const downloadLink = document.getElementById('downloadLink');
-
-        if (!tempo || !tone) {
-            errorMessage.style.display = "block";
-            statusMessage.style.display = "none";
+      const tempo = document.getElementById("tempo").value;
+      const tone = document.getElementById("tone").value;
+      const emotion = document.getElementById("emotion").value;
+      const statusMessage = document.getElementById("statusMessage");
+      const errorMessage = document.getElementById("errorMessage");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const downloadLink = document.getElementById("downloadLink");
+  
+      if (!tempo || !tone) {
+        errorMessage.style.display = "block";
+        statusMessage.style.display = "none";
+        loadingSpinner.style.display = "none";
+        return;
+      }
+  
+      errorMessage.style.display = "none";
+      statusMessage.style.display = "block";
+      statusMessage.innerText = "Generando melodía...";
+      loadingSpinner.style.display = "block";
+  
+      try {
+        const startTime = Date.now();
+        await fetch("http://127.0.0.1:8000/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion }),
+        });
+  
+        const midiResponse = await fetch("http://127.0.0.1:8000/convert_to_midi/");
+        if (midiResponse.ok) {
+          const blob = await midiResponse.blob();
+          const url = window.URL.createObjectURL(blob);
+          downloadLink.href = url;
+          downloadLink.download = "generated_melody.mid";
+          downloadLink.style.display = "flex";
+  
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(2000 - elapsedTime, 0);
+          setTimeout(() => {
+            statusMessage.innerText = "✅ ¡Melodía generada con éxito!";
             loadingSpinner.style.display = "none";
-            return;
+          }, remainingTime);
         }
-
-        errorMessage.style.display = "none";
-        statusMessage.style.display = "block";
-        statusMessage.innerText = "Generando melodía...";
-        loadingSpinner.style.display = "block";
-
-        try {
-            const startTime = Date.now();
-            await fetch('http://127.0.0.1:8000/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion })
-            });
-
-            const midiResponse = await fetch('http://127.0.0.1:8000/convert_to_midi/');
-            if (midiResponse.ok) {
-                const blob = await midiResponse.blob();
-                const url = window.URL.createObjectURL(blob);
-                downloadLink.href = url;
-                downloadLink.download = "generated_melody.mid";
-                downloadLink.style.display = "flex";
-
-                const elapsedTime = Date.now() - startTime;
-                const remainingTime = Math.max(2000 - elapsedTime, 0);
-                setTimeout(() => {
-                    statusMessage.innerText = "✅ ¡Melodía generada con éxito!";
-                    loadingSpinner.style.display = "none";
-                }, remainingTime);
-            }
-        } catch (error) {
-            statusMessage.innerText = "❌ Error al generar la melodía";
-        }
+      } catch (error) {
+        statusMessage.innerText = "❌ Error al generar la melodía";
+      }
     }
-
+  
     document.getElementById("generateMidi").addEventListener("click", generateMelody);
-    </script>
+  
+    // 👤 Script para el menú de perfil con retardo
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
+  
+    let hideTimeout;
+  
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+  
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000); // 🕒 1 segundo de retardo
+    });
+  </script>
+  
 </body>
 </html>

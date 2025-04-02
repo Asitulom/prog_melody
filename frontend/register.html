@@ -1,11 +1,12 @@
-<!-- usuarios.html -->
+<!-- register.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MIDIs de Usuarios 🎵</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <title>Registrarse</title>
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,14 +15,10 @@
     <nav class="navbar">
       <div class="nav-center">
         <a href="index.html">Generador</a>
-        <a href="usuarios.html" class="active">MIDIs de otros usuarios</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
       </div>
       <div class="profile-menu">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
-          alt="Perfil"
-          class="profile-icon"
-        />
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" alt="Perfil" class="profile-icon" />
         <div class="dropdown-content">
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
@@ -32,9 +29,14 @@
   </header>
 
   <div class="container">
-    <h2>MIDIs de Otros Usuarios 🎧</h2>
-    <p>Próximamente podrás ver, escuchar y calificar melodías generadas por otros usuarios.</p>
-    <p>Además, podrás subir tus propias creaciones y recibir feedback.</p>
+    <h2>Registrarse</h2>
+    <label for="username-register">Nuevo usuario:</label>
+    <input id="username-register" type="text" placeholder="Nuevo usuario" />
+
+    <label for="password-register">Contraseña:</label>
+    <input id="password-register" type="password" placeholder="Contraseña" />
+
+    <button>Registrar</button>
   </div>
 
   <footer>
@@ -55,7 +57,7 @@
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
-      }, 1000); // 1 segundo de retardo
+      }, 1000); // 🕒 1 segundo
     });
   </script>
 </body>
