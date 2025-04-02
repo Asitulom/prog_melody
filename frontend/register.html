@@ -1,5 +1,7 @@
 <!-- register.html -->
 
+<!-- register.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,7 +38,7 @@
     <label for="password-register">Contraseña:</label>
     <input id="password-register" type="password" placeholder="Contraseña" />
 
-    <button>Registrar</button>
+    <button id="register-btn">Registrar</button>
   </div>
 
   <footer>
@@ -44,20 +46,44 @@
   </footer>
 
   <script>
+    // Menú con retardo
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
-
     let hideTimeout;
-
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
-
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
-      }, 1000); // 🕒 1 segundo
+      }, 1000);
+    });
+
+    // Registro de usuario
+    document.getElementById("register-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username-register").value;
+      const password = document.getElementById("password-register").value;
+
+      if (!username || !password) return alert("Rellena todos los campos");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ username, password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("✅ Registro exitoso. Ahora inicia sesión.");
+          window.location.href = "login.html";
+        } else {
+          alert("❌ " + data.detail);
+        }
+      } catch (err) {
+        alert("❌ Error al registrar.");
+      }
     });
   </script>
 </body>

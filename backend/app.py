@@ -15,6 +15,9 @@ from backend.auth import (
     get_current_user, DB_PATH
 )
 
+app = FastAPI()
+
+init_db()
 
 
 # Configuración de CORS

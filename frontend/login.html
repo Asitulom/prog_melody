@@ -1,4 +1,7 @@
 <!-- login.html -->
+
+<!-- login.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,7 +36,7 @@
     <input id="username-login" type="text" placeholder="Nombre de usuario" />
     <label for="password-login">Contraseña:</label>
     <input id="password-login" type="password" placeholder="Contraseña" />
-    <button>Entrar</button>
+    <button id="login-btn">Entrar</button>
   </div>
 
   <footer>
@@ -41,21 +44,48 @@
   </footer>
 
   <script>
-    // 👤 Menú de perfil con retardo al ocultar
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
-
     let hideTimeout;
-
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
-
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
-      }, 1000); // 🕒 1 segundo
+      }, 1000);
+    });
+
+    // Inicio de sesión
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username-login").value;
+      const password = document.getElementById("password-login").value;
+
+      if (!username || !password) return alert("Rellena todos los campos");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            username: username,
+            password: password,
+            grant_type: "password"
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.access_token);
+          alert("✅ Sesión iniciada correctamente");
+          window.location.href = "index.html";
+        } else {
+          alert("❌ " + data.detail);
+        }
+      } catch (err) {
+        alert("❌ Error al iniciar sesión.");
+      }
     });
   </script>
 </body>
