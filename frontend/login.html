@@ -1,7 +1,5 @@
 <!-- login.html -->
 
-<!-- login.html -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,6 +23,7 @@
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
           <a href="#">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
         </div>
       </div>
     </nav>
@@ -44,18 +43,53 @@
   </footer>
 
   <script>
+    // Menú con retardo
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
     let hideTimeout;
+
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
+
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
       }, 1000);
     });
+
+    // 🔐 Cerrar sesión
+    const logoutBtn = document.getElementById("logout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        alert("👋 Has cerrado sesión");
+        window.location.href = "login.html";
+      });
+    }
+
+    // 🎉 Mostrar usuario en cabecera si ya está logueado
+    function obtenerUsuarioDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    const username = obtenerUsuarioDesdeToken();
+    if (username) {
+      const header = document.querySelector("header h1");
+      const saludo = document.createElement("p");
+      saludo.textContent = `🎵 Bienvenido, ${username}`;
+      saludo.style.fontSize = "16px";
+      saludo.style.margin = "5px 0 0 0";
+      header.appendChild(saludo);
+    }
 
     // Inicio de sesión
     document.getElementById("login-btn").addEventListener("click", async () => {

@@ -27,6 +27,7 @@
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
           <a href="#">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
         </div>
       </div>
     </nav>
@@ -54,7 +55,7 @@
   </footer>
 
   <script>
-    // 🎵 Función para generar la melodía (ya la tenías)
+    // 🎵 Función para generar la melodía
     async function generateMelody() {
       const tempo = document.getElementById("tempo").value;
       const tone = document.getElementById("tone").value;
@@ -63,19 +64,19 @@
       const errorMessage = document.getElementById("errorMessage");
       const loadingSpinner = document.getElementById("loadingSpinner");
       const downloadLink = document.getElementById("downloadLink");
-  
+
       if (!tempo || !tone) {
         errorMessage.style.display = "block";
         statusMessage.style.display = "none";
         loadingSpinner.style.display = "none";
         return;
       }
-  
+
       errorMessage.style.display = "none";
       statusMessage.style.display = "block";
       statusMessage.innerText = "Generando melodía...";
       loadingSpinner.style.display = "block";
-  
+
       try {
         const startTime = Date.now();
         await fetch("http://127.0.0.1:8000/generate", {
@@ -83,7 +84,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion }),
         });
-  
+
         const midiResponse = await fetch("http://127.0.0.1:8000/convert_to_midi/");
         if (midiResponse.ok) {
           const blob = await midiResponse.blob();
@@ -91,7 +92,7 @@
           downloadLink.href = url;
           downloadLink.download = "generated_melody.mid";
           downloadLink.style.display = "flex";
-  
+
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(2000 - elapsedTime, 0);
           setTimeout(() => {
@@ -103,26 +104,54 @@
         statusMessage.innerText = "❌ Error al generar la melodía";
       }
     }
-  
+
     document.getElementById("generateMidi").addEventListener("click", generateMelody);
-  
-    // 👤 Script para el menú de perfil con retardo
+
+    // 👤 Menú de perfil con retardo
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
-  
     let hideTimeout;
-  
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
-  
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
-      }, 1000); // 🕒 1 segundo de retardo
+      }, 1000);
     });
+
+    // 🔐 Cerrar sesión
+    const logoutBtn = document.getElementById("logout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        alert("👋 Has cerrado sesión");
+        window.location.href = "login.html";
+      });
+    }
+
+    // 🎉 Mostrar usuario en la cabecera
+    function obtenerUsuarioDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    const username = obtenerUsuarioDesdeToken();
+    if (username) {
+      const header = document.querySelector("header h1");
+      const saludo = document.createElement("p");
+      saludo.textContent = `🎵 Bienvenido, ${username}`;
+      saludo.style.fontSize = "16px";
+      saludo.style.margin = "5px 0 0 0";
+      header.appendChild(saludo);
+    }
   </script>
-  
 </body>
 </html>
