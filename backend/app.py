@@ -16,9 +16,6 @@ from backend.auth import (
 )
 
 
-app = FastAPI()
-init_db()
-
 
 # Configuración de CORS
 app.add_middleware(
