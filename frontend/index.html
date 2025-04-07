@@ -33,6 +33,9 @@
     </nav>
   </header>
 
+  <!-- 🎉 Toast de bienvenida -->
+  <div id="welcome-toast" class="toast"></div>
+
   <div class="container">
     <label for="tempo">Tempo:</label>
     <input type="number" id="tempo" placeholder="Ejemplo: 120" />
@@ -55,7 +58,7 @@
   </footer>
 
   <script>
-    // 🎵 Función para generar la melodía
+    // 🎵 Generador de melodías
     async function generateMelody() {
       const tempo = document.getElementById("tempo").value;
       const tone = document.getElementById("tone").value;
@@ -107,14 +110,16 @@
 
     document.getElementById("generateMidi").addEventListener("click", generateMelody);
 
-    // 👤 Menú de perfil con retardo
+    // 👤 Menú de perfil
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
     let hideTimeout;
+
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
+
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
@@ -131,7 +136,7 @@
       });
     }
 
-    // 🎉 Mostrar usuario en la cabecera
+    // 🎉 Mostrar toast si hay token con nombre de usuario
     function obtenerUsuarioDesdeToken() {
       const token = localStorage.getItem("token");
       if (!token) return null;
@@ -145,12 +150,10 @@
 
     const username = obtenerUsuarioDesdeToken();
     if (username) {
-      const header = document.querySelector("header h1");
-      const saludo = document.createElement("p");
-      saludo.textContent = `🎵 Bienvenido, ${username}`;
-      saludo.style.fontSize = "16px";
-      saludo.style.margin = "5px 0 0 0";
-      header.appendChild(saludo);
+      const toast = document.getElementById("welcome-toast");
+      toast.textContent = `🎵 ¡Bienvenido, ${username}!`;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
     }
   </script>
 </body>

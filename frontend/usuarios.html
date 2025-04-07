@@ -1,11 +1,12 @@
 <!-- usuarios.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MIDIs de Usuarios 🎵</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -17,11 +18,7 @@
         <a href="usuarios.html" class="active">MIDIs de otros usuarios</a>
       </div>
       <div class="profile-menu">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
-          alt="Perfil"
-          class="profile-icon"
-        />
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" alt="Perfil" class="profile-icon" />
         <div class="dropdown-content">
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
@@ -34,8 +31,38 @@
 
   <div class="container">
     <h2>MIDIs de Otros Usuarios 🎧</h2>
-    <p>Próximamente podrás ver, escuchar y calificar melodías generadas por otros usuarios.</p>
-    <p>Además, podrás subir tus propias creaciones y recibir feedback.</p>
+
+    <div id="midiSection" style="display: none;">
+      <p>Descarga melodías compartidas por la comunidad:</p>
+
+      <div class="midi-grid">
+        <div class="midi-card">
+          <h4>MIDI 1 - AMINOR</h4>
+          <a download href="midis/MIDI 1 - AMINOR.mid">⬇ Descargar</a>
+        </div>
+        <div class="midi-card">
+          <h4>MIDI 2 - D#MINOR</h4>
+          <a download href="midis/MIDI 2 - D#MINOR.mid">⬇ Descargar</a>
+        </div>
+        <div class="midi-card">
+          <h4>MIDI 3 - GMINOR</h4>
+          <a download href="midis/MIDI 3 - GMINOR.mid">⬇ Descargar</a>
+        </div>
+        <div class="midi-card">
+          <h4>MIDI 4 - EMINOR</h4>
+          <a download href="midis/MIDI 4 - EMINOR.mid">⬇ Descargar</a>
+        </div>
+      </div>
+
+      <div id="uploadSection">
+        <h3>📤 Sube tu propia melodía</h3>
+        <input type="file" id="midiUpload" accept=".mid" />
+        <button onclick="subirMelodia()">Subir MIDI</button>
+        <div id="userUploads" style="margin-top: 30px;"></div>
+      </div>
+    </div>
+
+    <p id="loginWarning" style="text-align:center; margin-top: 40px;">🔒 Debes iniciar sesión para acceder a las melodías de la comunidad.</p>
   </div>
 
   <footer>
@@ -58,7 +85,6 @@
       }, 1000);
     });
 
-    // 🔐 Cerrar sesión
     const logoutBtn = document.getElementById("logout");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", () => {
@@ -68,7 +94,6 @@
       });
     }
 
-    // 🎉 Mostrar nombre del usuario si está logueado
     function obtenerUsuarioDesdeToken() {
       const token = localStorage.getItem("token");
       if (!token) return null;
@@ -82,12 +107,68 @@
 
     const username = obtenerUsuarioDesdeToken();
     if (username) {
-      const header = document.querySelector("header h1");
-      const saludo = document.createElement("p");
-      saludo.textContent = `🎵 Bienvenido, ${username}`;
-      saludo.style.fontSize = "16px";
-      saludo.style.margin = "5px 0 0 0";
-      header.appendChild(saludo);
+      document.getElementById("midiSection").style.display = "block";
+      document.getElementById("loginWarning").style.display = "none";
+      cargarMelodias();
+    }
+
+    async function cargarMelodias() {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/melodias");
+        const melodias = await response.json();
+
+        const contenedor = document.getElementById("userUploads");
+        contenedor.innerHTML = "";
+
+        melodias.forEach(nombre => {
+          const card = document.createElement("div");
+          card.className = "midi-card";
+          card.innerHTML = `
+            <h4>${nombre}</h4>
+            <a href="http://127.0.0.1:8000/melodias/${encodeURIComponent(nombre)}" download>⬇ Descargar</a>
+          `;
+          contenedor.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error cargando melodías:", err);
+      }
+    }
+
+    async function subirMelodia() {
+      const fileInput = document.getElementById("midiUpload");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Selecciona un archivo MIDI para subir.");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Debes iniciar sesión para subir melodías.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/melodias/upload", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        if (response.ok) {
+          alert("✅ Melodía subida correctamente.");
+          fileInput.value = "";
+          cargarMelodias();
+        } else {
+          const error = await response.json();
+          alert("❌ Error: " + error.detail);
+        }
+      } catch (err) {
+        alert("❌ Error al subir la melodía.");
+      }
     }
   </script>
 </body>
