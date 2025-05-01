@@ -63,10 +63,7 @@ http://127.0.0.1:8000/docs
 
 **Frontend**
 
- http://localhost:8001
-
-
-
+http://localhost:8001
 
 
 Control + shift + r

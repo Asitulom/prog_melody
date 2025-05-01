@@ -25,6 +25,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+
+    # Crear tabla de usuarios
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +34,18 @@ def init_db():
         password TEXT NOT NULL
     )
     """)
+
+    # Crear tabla de valoraciones
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS valoraciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        midi_name TEXT NOT NULL,
+        username TEXT NOT NULL,
+        puntuacion INTEGER NOT NULL CHECK (puntuacion >= 1 AND puntuacion <= 5),
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     conn.commit()
     conn.close()
 

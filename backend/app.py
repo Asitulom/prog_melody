@@ -32,11 +32,15 @@ app.add_middleware(
 UPLOAD_DIR = "ai/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# --------- MODELO Pydantic ---------
+# --------- MODELOS Pydantic ---------
 class MelodyRequest(BaseModel):
     tempo: int
     tone: str
     emotion: str
+
+class ValoracionRequest(BaseModel):
+    midi_name: str
+    puntuacion: int
 
 # --------- ENDPOINTS ---------
 
@@ -106,3 +110,59 @@ async def subir_melodia(file: UploadFile = File(...), username: str = Depends(ge
         f.write(content)
 
     return JSONResponse(content={"message": f"Melodía {file.filename} subida por {username}."}, status_code=201)
+
+@app.post("/valorar")
+def valorar_melodia(valoracion: ValoracionRequest, username: str = Depends(get_current_user)):
+    if not (1 <= valoracion.puntuacion <= 5):
+        raise HTTPException(status_code=400, detail="La puntuación debe ser entre 1 y 5")
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # Comprobar si el usuario ya valoró esa melodía
+    c.execute("""
+        SELECT id FROM valoraciones
+        WHERE midi_name = ? AND username = ?
+    """, (valoracion.midi_name, username))
+    ya_valoro = c.fetchone()
+
+    if ya_valoro:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Ya has valorado esta melodía")
+
+    try:
+        c.execute("""
+            INSERT INTO valoraciones (midi_name, username, puntuacion)
+            VALUES (?, ?, ?)
+        """, (valoracion.midi_name, username, valoracion.puntuacion))
+        conn.commit()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al guardar valoración: {str(e)}")
+    finally:
+        conn.close()
+
+    return {"message": "Valoración registrada correctamente"}
+
+
+@app.get("/valoraciones/{midi_name}")
+def obtener_valoracion(midi_name: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        SELECT AVG(puntuacion), COUNT(*) FROM valoraciones WHERE midi_name = ?
+    """, (midi_name,))
+    result = c.fetchone()
+    conn.close()
+
+    if result and result[1] > 0:
+        return {
+            "midi_name": midi_name,
+            "valoracion_media": round(result[0], 2),
+            "cantidad_votos": result[1]
+        }
+    else:
+        return {
+            "midi_name": midi_name,
+            "valoracion_media": None,
+            "cantidad_votos": 0
+        }
