@@ -1,7 +1,7 @@
 <!-- index.html -->
 
 <!DOCTYPE html>
-<html lang="es">
+<html lan g="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,14 +26,13 @@
         <div class="dropdown-content">
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
-          <a href="#">Mis melodías</a>
+          <a href="mis_melodias.html">Mis melodías</a>
           <a href="#" id="logout">Cerrar sesión</a>
         </div>
       </div>
     </nav>
   </header>
 
-  <!-- 🎉 Toast de bienvenida -->
   <div id="welcome-toast" class="toast"></div>
 
   <div class="container">
@@ -58,7 +57,6 @@
   </footer>
 
   <script>
-    // 🎵 Generador de melodías
     async function generateMelody() {
       const tempo = document.getElementById("tempo").value;
       const tone = document.getElementById("tone").value;
@@ -68,7 +66,18 @@
       const loadingSpinner = document.getElementById("loadingSpinner");
       const downloadLink = document.getElementById("downloadLink");
 
+      const token = localStorage.getItem("token");
+
       if (!tempo || !tone) {
+        errorMessage.innerText = "❌ Debes ingresar un Tempo y un Tono.";
+        errorMessage.style.display = "block";
+        statusMessage.style.display = "none";
+        loadingSpinner.style.display = "none";
+        return;
+      }
+
+      if (!token) {
+        errorMessage.innerText = "❌ Debes iniciar sesión para generar y guardar tu melodía.";
         errorMessage.style.display = "block";
         statusMessage.style.display = "none";
         loadingSpinner.style.display = "none";
@@ -82,9 +91,13 @@
 
       try {
         const startTime = Date.now();
+
         await fetch("http://127.0.0.1:8000/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion }),
         });
 
@@ -99,18 +112,19 @@
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(2000 - elapsedTime, 0);
           setTimeout(() => {
-            statusMessage.innerText = "✅ ¡Melodía generada con éxito!";
+            statusMessage.innerText = "✅ ¡Melodía generada y guardada con éxito!";
             loadingSpinner.style.display = "none";
           }, remainingTime);
         }
       } catch (error) {
         statusMessage.innerText = "❌ Error al generar la melodía";
+        console.error(error);
       }
     }
 
     document.getElementById("generateMidi").addEventListener("click", generateMelody);
 
-    // 👤 Menú de perfil
+    // Menú con retardo
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
     let hideTimeout;
@@ -126,7 +140,7 @@
       }, 1000);
     });
 
-    // 🔐 Cerrar sesión
+    // Cerrar sesión
     const logoutBtn = document.getElementById("logout");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", () => {
@@ -136,7 +150,7 @@
       });
     }
 
-    // 🎉 Mostrar toast si hay token con nombre de usuario
+    // Mostrar toast de bienvenida
     function obtenerUsuarioDesdeToken() {
       const token = localStorage.getItem("token");
       if (!token) return null;

@@ -46,6 +46,15 @@ def init_db():
     )
     """)
 
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS mis_melodias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        midi_name TEXT NOT NULL,
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     conn.commit()
     conn.close()
 
