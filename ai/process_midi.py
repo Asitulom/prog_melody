@@ -54,5 +54,7 @@ def process_midi_folder(folder_path, output_json="midi_data.json"):
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    midi_folder = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad"
+    #midi_folder = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad"
+    midi_folder = "ai/datasets/midi/sad"
     process_midi_folder(midi_folder, "sad_midi_data.json")
+    

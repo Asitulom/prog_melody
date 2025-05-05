@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.9"
 
 services:
   backend:
@@ -6,13 +6,15 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
-    environment:
-      - PYTHONUNBUFFERED=1
+      - ./ai/mis_melodias:/app/ai/mis_melodias
+      - ./ai/uploads:/app/ai/uploads
+      - ./users.db:/app/users.db
 
   frontend:
-    image: nginx
+    image: python:3.10-slim
+    working_dir: /usr/src/app
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend:/usr/src/app
     ports:
-      - "8001:80"
+      - "8001:8001"
+    command: python -m http.server 8001

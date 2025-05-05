@@ -41,10 +41,15 @@ def generate_lstm_melody(sequence_length=50, num_notes=30):
         rand_duration = duration_scaler.inverse_transform([[np.random.rand()]])[0][0]
         rand_velocity = velocity_scaler.inverse_transform([[np.random.rand()]])[0][0]
 
+
+        note = max(0, min(127, int(round(denorm_note))))
+        velocity = max(0, min(127, int(rand_velocity)))
+        duration = max(0, min(1000, int(rand_duration)))  # Puedes ajustar el tope de duración
+
         generated.append({
-            "note": int(round(denorm_note)),
-            "duration": int(rand_duration),
-            "velocity": int(rand_velocity)
+            "note": note,
+            "duration": duration,
+            "velocity": velocity
         })
 
         # Actualiza la semilla desplazando la ventana

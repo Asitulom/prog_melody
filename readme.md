@@ -53,6 +53,7 @@ DOCKER:
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
 
+
 docker-compose down
 
 docker-compose up --build

@@ -36,8 +36,9 @@ def generate_midi(melody_data, output_midi_path="generated_melody.mid"):
     
 # ---------- EJECUCIÓN DEL SCRIPT ----------
 if __name__ == "__main__":
-    input_json = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\generated_melody.json"
-    output_midi = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\generated_melody.mid"
+    input_json = "ai/generated_melody.json"
+    output_midi = "ai/generated_melody.mid"
+
 
     if not os.path.exists(input_json):
         print(f"❌ Error: El archivo {input_json} no existe. Genera la melodía primero.")
