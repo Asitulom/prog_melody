@@ -49,6 +49,8 @@
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        if (!res.ok) throw new Error("Error autenticando");
+
         const melodias = await res.json();
         const contenedor = document.getElementById("melodiasList");
         document.getElementById("loginWarning").style.display = "none";
@@ -56,10 +58,36 @@
         melodias.forEach(midi => {
           const card = document.createElement("div");
           card.className = "midi-card";
-          card.innerHTML = `
-            <h4>${midi.replace(".mid", "")}</h4>
-            <a href="http://127.0.0.1:8000/mis-melodias/${encodeURIComponent(midi)}" download>⬇ Descargar</a>
-          `;
+          card.innerHTML = `<h4>${midi.replace(".mid", "")}</h4>`;
+
+          const downloadBtn = document.createElement("a");
+          downloadBtn.textContent = "⬇ Descargar";
+          downloadBtn.className = "download-button";
+          downloadBtn.href = "#";
+
+          downloadBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            try {
+              const response = await fetch(`http://127.0.0.1:8000/mis-melodias/${encodeURIComponent(midi)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+
+              if (!response.ok) throw new Error("No se pudo descargar");
+
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = midi;
+              a.click();
+              window.URL.revokeObjectURL(url);
+            } catch (error) {
+              alert("❌ Error al descargar la melodía.");
+              console.error(error);
+            }
+          });
+
+          card.appendChild(downloadBtn);
           contenedor.appendChild(card);
         });
       } catch (err) {

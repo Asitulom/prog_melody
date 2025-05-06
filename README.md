@@ -37,7 +37,7 @@ cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
 python -m http.server 8001
 http://localhost:8001
 
-
+ 
 # Extra. Para ver los usuarios de la base de datos
 cd C:\Users\Asier\Documents\PFG\prog_melody
 C:\sqlite\sqlite3.exe users.db
