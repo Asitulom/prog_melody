@@ -8,18 +8,18 @@ from collections import defaultdict
 # Definición de escalas (solo menores por ahora)
 SCALES = {
     "AMINOR": ["A", "B", "C", "D", "E", "F", "G"],
+    "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"],
     "BMINOR": ["B", "C#", "D", "E", "F#", "G", "A"],
     "CMINOR": ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+    "C#MINOR": ["C#", "D#", "E", "F#", "G#", "A", "B"],
     "DMINOR": ["D", "E", "F", "G", "A", "Bb", "C"],
+    "D#MINOR": ["D#", "F", "F#", "G#", "A#", "B", "C#"],
     "EMINOR": ["E", "F#", "G", "A", "B", "C", "D"],
     "FMINOR": ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
-    "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
-    "D#MINOR": ["D#", "F", "F#", "G#", "A#", "B", "C#"],
     "F#MINOR": ["F#", "G#", "A", "B", "C#", "D", "E"],
-    "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"],
-    "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"]
+    "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
+    "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"]
 }
-
 # Mapeo de notas MIDI a nombres
 MIDI_TO_NOTE = {i: v for i, v in enumerate(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] * 11)}
 

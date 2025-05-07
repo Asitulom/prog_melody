@@ -27,6 +27,7 @@ python process_midi.py
 # 5. Entrenar el modelo LSTM (esto crea melody_model.h5 y los escaladores)
 python melody_model.py
 
+
 # 6. Volver a la raíz del proyecto para lanzar el backend
 cd ..
 uvicorn backend.app:app --reload
