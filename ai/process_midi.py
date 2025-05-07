@@ -3,58 +3,99 @@
 import mido
 import os
 import json
+from collections import defaultdict
 
-def extract_midi_data(midi_path):
-    """
-    Extrae notas, tiempo de inicio, duración y velocidad (intensidad) de un archivo MIDI y guarda en JSON
-    """
+# Definición de escalas (solo menores por ahora)
+SCALES = {
+    "AMINOR": ["A", "B", "C", "D", "E", "F", "G"],
+    "BMINOR": ["B", "C#", "D", "E", "F#", "G", "A"],
+    "CMINOR": ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+    "DMINOR": ["D", "E", "F", "G", "A", "Bb", "C"],
+    "EMINOR": ["E", "F#", "G", "A", "B", "C", "D"],
+    "FMINOR": ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+    "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
+    "D#MINOR": ["D#", "F", "F#", "G#", "A#", "B", "C#"],
+    "F#MINOR": ["F#", "G#", "A", "B", "C#", "D", "E"],
+    "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"],
+    "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"]
+}
+
+# Mapeo de notas MIDI a nombres
+MIDI_TO_NOTE = {i: v for i, v in enumerate(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] * 11)}
+
+# Inverso del diccionario
+NOTE_TO_MIDI = {v: k for k, v in MIDI_TO_NOTE.items()}
+
+# Margen para considerar notas como parte del mismo acorde (en ticks)
+CHORD_THRESHOLD = 30
+
+# Función para extraer escala del nombre del archivo
+def get_scale_from_filename(filename):
+    parts = filename.split("-")
+    if len(parts) > 1:
+        scale = parts[1].replace(".mid", "").strip()
+        return scale.upper()
+    return None
+
+# Función para procesar un archivo MIDI
+def process_midi_file(midi_path):
     mid = mido.MidiFile(midi_path)
-    notes = []
+    chords = []
+    melody = []
+    current_time = 0
+    active_notes = []
 
     for track in mid.tracks:
-        current_time = 0  # Lleva el tiempo acumulado en ticks
-
         for msg in track:
-            current_time += msg.time  # Suma el tiempo de cada mensaje MIDI
+            current_time += msg.time
 
-            if msg.type == 'note_on' and msg.velocity > 0:  # Detecta notas activadas
-                notes.append({
-                    "note": msg.note,  # Pitch (0-127)
-                    "start_time": current_time,  # Inicio en ticks
-                    "velocity": msg.velocity,  # Intensidad (0-127)
-                    "duration": 0  # Se calculará después
-                })
+            if msg.type == 'note_on' and msg.velocity > 0:
+                active_notes.append((msg.note, msg.velocity, current_time))
 
             elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
-                # Encuentra la nota previa y calcula la duración
-                for note in reversed(notes):
-                    if note["note"] == msg.note and note["duration"] == 0:
-                        note["duration"] = current_time - note["start_time"]
-                        break
+                if len(active_notes) >= 3:
+                    start_times = [n[2] for n in active_notes]
+                    min_time = min(start_times)
+                    max_time = max(start_times)
 
-    return notes
+                    if max_time - min_time <= CHORD_THRESHOLD:
+                        chords.append({"notes": [n[0] for n in active_notes], "duration": max_time - min_time, "velocity": max([n[1] for n in active_notes])})
+                    else:
+                        for note in active_notes:
+                            melody.append({"note": note[0], "duration": current_time - note[2], "velocity": note[1]})
+                elif len(active_notes) == 1:
+                    note = active_notes[0]
+                    melody.append({"note": note[0], "duration": current_time - note[2], "velocity": note[1]})
 
+                active_notes = []
 
+    return chords, melody
+
+# Función para procesar toda la carpeta
 def process_midi_folder(folder_path, output_json="midi_data.json"):
-    """
-    Procesa todos los archivos MIDI en una carpeta y guarda los datos en un JSON.
-    """
-    midi_data = {}
+    data = defaultdict(lambda: {"acordes": [], "melodia": []})
 
     for file in os.listdir(folder_path):
-        if file.endswith(".mid") or file.endswith(".midi"):
+        if file.endswith(".mid"):
             midi_path = os.path.join(folder_path, file)
-            midi_data[file] = extract_midi_data(midi_path)
+            scale = get_scale_from_filename(file)
+            if scale and scale in SCALES:
+                print(f"Procesando: {midi_path} - Escala: {scale}")
+                chords, melody = process_midi_file(midi_path)
+                data[scale]["acordes"].extend(chords)
+                data[scale]["melodia"].extend(melody)
 
     with open(output_json, "w") as f:
-        json.dump(midi_data, f, indent=4)
+        json.dump(data, f, indent=4)
 
-    print(f"✅ Datos guardados en {output_json}")
+    print(f"✅ Datos procesados y guardados en {output_json}")
 
-
-# Ejemplo de uso
+# Ejecución del script
 if __name__ == "__main__":
-    #midi_folder = r"C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad"
-    midi_folder = "ai/datasets/midi/sad"
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    midi_folder = os.path.join(BASE_DIR, "datasets", "midi", "sad")
+
+    # Mostrar la ruta a procesar
+    print(f"Ruta a procesar: {midi_folder}")
+
     process_midi_folder(midi_folder, "sad_midi_data.json")
-    

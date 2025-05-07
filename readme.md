@@ -48,11 +48,9 @@ DELETE FROM valoraciones;
 
 
 
-
 DOCKER:
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
-
 
 docker-compose down
 
