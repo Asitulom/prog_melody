@@ -1,5 +1,7 @@
 #melody_model.py
 
+#melody_model.py
+
 import json
 import numpy as np
 import tensorflow as tf
@@ -31,7 +33,12 @@ def load_midi_data():
     melodies = []
     for scale, content in data.items():
         for note in content['melodia']:
-            melodies.append({"note": note["note"], "duration": note["duration"], "velocity": note["velocity"], "scale": scale})
+            melodies.append({
+                "note": note["note"],
+                "duration": note["duration"],
+                "velocity": note["velocity"],
+                "scale": scale
+            })
     return melodies
 
 # Preprocesamiento de datos
@@ -50,7 +57,10 @@ def preprocess_data(melodies):
     velocities = np.array(velocities).reshape(-1, 1)
 
     # Normalización (0-1) con MinMaxScaler
-    note_scaler, duration_scaler, velocity_scaler = MinMaxScaler(), MinMaxScaler(), MinMaxScaler()
+    note_scaler = MinMaxScaler()
+    duration_scaler = MinMaxScaler()
+    velocity_scaler = MinMaxScaler()
+
     notes = note_scaler.fit_transform(notes)
     durations = duration_scaler.fit_transform(durations)
     velocities = velocity_scaler.fit_transform(velocities)
@@ -76,7 +86,7 @@ def preprocess_data(melodies):
     for i in range(len(notes) - sequence_length):
         X_notes.append(np.hstack((notes[i:i+sequence_length], durations[i:i+sequence_length], velocities[i:i+sequence_length])))
         X_scales.append(scales[i])  # La escala se mantiene constante
-        y.append(notes[i+sequence_length])
+        y.append(notes[i + sequence_length])
 
     return np.array(X_notes), np.array(X_scales), np.array(y)
 
@@ -105,7 +115,7 @@ def train_model():
     X_notes, X_scales, y = preprocess_data(melodies)
 
     model = build_model((X_notes.shape[1], X_notes.shape[2]), X_scales.shape[1])
-    model.fit([X_notes, X_scales], y, epochs=50, batch_size=32, validation_split=0.2)
+    model.fit([X_notes, X_scales], y, epochs=100, batch_size=32, validation_split=0.2)
 
     # Guardar modelo
     model.save(MODEL_PATH)
