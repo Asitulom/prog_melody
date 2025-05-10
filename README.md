@@ -24,8 +24,9 @@ pip install -r requirements.txt
 cd ai
 python process_midi.py
 
-# 5. Entrenar el modelo LSTM (esto crea melody_model.h5 y los escaladores)
-python melody_model.py
+# 5. Entrenar los modelos LSTM
+python train_melody_model.py
+python train_chord_model.py
 
 
 # 6. Volver a la raíz del proyecto para lanzar el backend
