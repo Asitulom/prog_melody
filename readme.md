@@ -5,10 +5,13 @@
 Este proyecto es un generador básico de melodías utilizando un backend en **FastAPI** y un frontend en **HTML, CSS y JavaScript**. Permite a los usuarios generar melodías originales ajustando parámetros como el tempo, el tono y la emoción.
 
 
+git clone https://github.com/Asitulom/prog_melody.git
+
 ## 🚀 Cómo ejecutar la aplicación
 
 
-git clone https://github.com/Asitulom/prog_melody.git
+El usuario en el frontend solicita un midi con una escala concreta y una nota en concreto, despues el programa le devuelve un midi con acordes y melodias en la escala y nota que ha solicitado. Ejemplo: el usuario pide C y sad: recibe un midi de acordes y melodia en CMINOR
+
 
 
 # 1. Ir a la carpeta del proyecto
@@ -28,15 +31,20 @@ python process_midi.py
 python train_melody_model.py
 python train_chord_model.py
 
+# 6.  
+cd C:\Users\Asier\Documents\PFG\prog_melody\backend
+python generate_music.py
 
-# 6. Volver a la raíz del proyecto para lanzar el backend
+
+# 7. Volver a la raíz del proyecto para lanzar el backend
 cd ..
 uvicorn backend.app:app --reload
 http://127.0.0.1:8000/docs
 
-# 7. En una nueva terminal (o nueva pestaña)
+# 8. En una nueva terminal (o nueva pestaña)
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
 python -m http.server 8001
+
 http://localhost:8001
 
  

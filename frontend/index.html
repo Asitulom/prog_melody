@@ -1,7 +1,7 @@
 <!-- index.html -->
 
 <!DOCTYPE html>
-<html lan g="es">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,6 +46,7 @@
       <option value="sad">Sad 😢</option>
     </select>
     <button id="generateMidi">🎵 Generar MIDI</button>
+
     <div id="loadingSpinner"></div>
     <p id="statusMessage">Generando melodía...</p>
     <p id="errorMessage">❌ Debes ingresar un Tempo y un Tono.</p>
@@ -65,7 +66,6 @@
       const errorMessage = document.getElementById("errorMessage");
       const loadingSpinner = document.getElementById("loadingSpinner");
       const downloadLink = document.getElementById("downloadLink");
-
       const token = localStorage.getItem("token");
 
       if (!tempo || !tone) {
@@ -75,9 +75,8 @@
         loadingSpinner.style.display = "none";
         return;
       }
-
       if (!token) {
-        errorMessage.innerText = "❌ Debes iniciar sesión para generar y guardar tu melodía.";
+        errorMessage.innerText = "❌ Debes iniciar sesión para generar tu melodía.";
         errorMessage.style.display = "block";
         statusMessage.style.display = "none";
         loadingSpinner.style.display = "none";
@@ -88,37 +87,45 @@
       statusMessage.style.display = "block";
       statusMessage.innerText = "Generando melodía...";
       loadingSpinner.style.display = "block";
+      downloadLink.style.display = "none";
 
+      const startTime = Date.now();
       try {
-        const startTime = Date.now();
-
-        await fetch("http://127.0.0.1:8000/generate", {
+        const res = await fetch("http://127.0.0.1:8000/generate", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ tempo: parseInt(tempo), tone: tone, emotion: emotion }),
+          body: JSON.stringify({
+            tempo: parseInt(tempo),
+            tone: tone,
+            emotion: emotion
+          })
         });
 
-        const midiResponse = await fetch("http://127.0.0.1:8000/convert_to_midi/");
-        if (midiResponse.ok) {
-          const blob = await midiResponse.blob();
-          const url = window.URL.createObjectURL(blob);
-          downloadLink.href = url;
-          downloadLink.download = "generated_melody.mid";
-          downloadLink.style.display = "flex";
-
-          const elapsedTime = Date.now() - startTime;
-          const remainingTime = Math.max(2000 - elapsedTime, 0);
-          setTimeout(() => {
-            statusMessage.innerText = "✅ ¡Melodía generada y guardada con éxito!";
-            loadingSpinner.style.display = "none";
-          }, remainingTime);
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Error inesperado");
         }
-      } catch (error) {
+
+        // Recibimos directamente el MIDI como blob
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = `melodia_${Date.now()}.mid`;
+        downloadLink.style.display = "flex";
+
+        const elapsed = Date.now() - startTime;
+        setTimeout(() => {
+          statusMessage.innerText = "✅ ¡Melodía generada con éxito!";
+          loadingSpinner.style.display = "none";
+        }, Math.max(2000 - elapsed, 0));
+
+      } catch (e) {
+        console.error(e);
         statusMessage.innerText = "❌ Error al generar la melodía";
-        console.error(error);
+        loadingSpinner.style.display = "none";
       }
     }
 
@@ -128,12 +135,10 @@
     const profileMenu = document.querySelector(".profile-menu");
     const dropdown = document.querySelector(".dropdown-content");
     let hideTimeout;
-
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
-
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
@@ -141,27 +146,23 @@
     });
 
     // Cerrar sesión
-    const logoutBtn = document.getElementById("logout");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        alert("👋 Has cerrado sesión");
-        window.location.href = "login.html";
-      });
-    }
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("👋 Has cerrado sesión");
+      window.location.href = "login.html";
+    });
 
-    // Mostrar toast de bienvenida
+    // Toast de bienvenida
     function obtenerUsuarioDesdeToken() {
       const token = localStorage.getItem("token");
       if (!token) return null;
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload.sub || null;
-      } catch (e) {
+      } catch {
         return null;
       }
     }
-
     const username = obtenerUsuarioDesdeToken();
     if (username) {
       const toast = document.getElementById("welcome-toast");

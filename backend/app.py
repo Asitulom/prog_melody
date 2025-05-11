@@ -15,9 +15,7 @@ import uuid
 from typing import Optional
 from fastapi import Request
 from jose import JWTError, jwt
-
-
-from backend.melody_service import generate_simple_melody
+from backend.generate_music import generate_music
 from backend.auth import (
     init_db, hash_password, verify_password, create_access_token,
     get_current_user, DB_PATH, SECRET_KEY, ALGORITHM
@@ -52,86 +50,61 @@ class ValoracionRequest(BaseModel):
     midi_name: str
     puntuacion: int
 
-# --------- ENDPOINTS ---------
-
-# @app.post("/generate")
-# async def generate_melody(request: MelodyRequest):
-#     # 1. Generar melodía
-#     melody = generate_simple_melody(request.tempo, request.tone, request.emotion)
-#     with open("ai/generated_melody.json", "w") as f:
-#         json.dump(melody, f)
-
-#     # 2. Convertir a MIDI
-#     subprocess.run(["python", "ai/convert_to_midi.py"])
-#     source = "ai/generated_melody.mid"
-#     if not os.path.exists(source):
-#         raise HTTPException(status_code=500, detail="No se generó el archivo MIDI.")
-
-#     # 3. Guardar con nombre aleatorio en carpeta uploads
-#     nombre_midi = f"melodia_{uuid.uuid4().hex[:8]}.mid"
-#     destino = os.path.join(UPLOAD_DIR, nombre_midi)
-#     shutil.move(source, destino)
-
-#     return {"message": f"Melodía generada y guardada como {nombre_midi}"}
-
-
-from typing import Optional
-from fastapi import Request
-from jose import JWTError
 
 @app.post("/generate")
 async def generate_melody(request_data: MelodyRequest, request: Request):
-    # Extraer token si existe
+    # 1) Extraer usuario de token (igual que tenías)
     token = request.headers.get("Authorization")
     username = None
-
     if token and token.startswith("Bearer "):
-        token = token.replace("Bearer ", "")
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token.split()[1], SECRET_KEY, algorithms=[ALGORITHM])
             username = payload.get("sub")
         except JWTError:
-            username = None  # Token inválido, sigue sin usuario
+            pass
 
-    # 1. Generar melodía
-    melody = generate_simple_melody(request_data.tempo, request_data.tone, request_data.emotion)
-    with open("ai/generated_melody.json", "w") as f:
-        json.dump(melody, f)
+    # 2) Generar un nombre temporal para el fichero de salida
+    tmp_name = f"tmp_{uuid.uuid4().hex[:8]}.mid"
+    tmp_path = os.path.join(MIS_MELODIAS_DIR, tmp_name)
 
-    # 2. Convertir a MIDI
-    subprocess.run(["python", "ai/convert_to_midi.py"])
-    source = "ai/generated_melody.mid"
-    if not os.path.exists(source):
-        raise HTTPException(status_code=500, detail="No se generó el archivo MIDI.")
-
-    # 3. Guardar archivo
-    if username:
-        nombre_midi = f"{username}_{uuid.uuid4().hex[:8]}.mid"
+    # 3) Construir la clave de escala según el tono y la emoción
+    base_tone = request_data.tone.strip().upper()
+    emotion = request_data.emotion.strip().lower()
+    if emotion == "sad":
+        scale_key = f"{base_tone}MINOR"
+    elif emotion == "happy":
+        scale_key = f"{base_tone}MAJOR"
     else:
-        nombre_midi = f"melodia_{uuid.uuid4().hex[:8]}.mid"
+        # Por defecto, tratamos cualquier otra emoción como menor
+        scale_key = f"{base_tone}MINOR"
 
-    destino = os.path.join(MIS_MELODIAS_DIR, nombre_midi)
-    shutil.move(source, destino)
+    # 4) Llamar a la función de generación
+    try:
+        generate_music(scale_key, output_path=tmp_path)
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"No se pudo generar música: {e}")
 
-    # 4. Si hay usuario → guardar en la tabla "mis_melodias"
+    # 5) Renombrar al nombre definitivo
+    if username:
+        final_name = f"{username}_{uuid.uuid4().hex[:8]}.mid"
+    else:
+        final_name = f"melodia_{uuid.uuid4().hex[:8]}.mid"
+    final_path = os.path.join(MIS_MELODIAS_DIR, final_name)
+    shutil.move(tmp_path, final_path)
+
+    # 6) Si hay usuario, guardar registro en la base de datos
     if username:
         conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("INSERT INTO mis_melodias (username, midi_name) VALUES (?, ?)", (username, nombre_midi))
+        conn.execute(
+            "INSERT INTO mis_melodias(username, midi_name) VALUES(?, ?)",
+            (username, final_name)
+        )
         conn.commit()
         conn.close()
 
-    return {"message": f"Melodía generada como {nombre_midi}", "guardada_en_mis_melodias": bool(username)}
-
-
-
-@app.get("/convert_to_midi/")
-async def convert_to_midi():
-    subprocess.run(["python", "ai/convert_to_midi.py"])
-    midi_path = "ai/generated_melody.mid"
-    if os.path.exists(midi_path):
-        return FileResponse(midi_path, filename="generated_melody.mid", media_type="audio/midi")
-    return {"error": "El archivo MIDI no se generó correctamente"}
+    # 7) Devolver el archivo MIDI al cliente
+    return FileResponse(final_path, filename=final_name, media_type="audio/midi")
 
 
 @app.post("/register")
