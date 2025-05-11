@@ -1,10 +1,9 @@
-#generate_music.py
-
 # backend/generate_music.py
 
 import os
 import json
 import pickle
+import random
 import numpy as np
 import tensorflow as tf
 from mido import MidiFile, MidiTrack, Message
@@ -12,166 +11,128 @@ from typing import List, Tuple
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Paths a modelos y datos
-CHORD_MODEL_PATH     = os.path.join(BASE_DIR, '../ai/chord_model.h5')
+# Rutas a modelos y datos
 MELODY_MODEL_PATH    = os.path.join(BASE_DIR, '../ai/melody_model.h5')
 NOTE_SCALER_PATH     = os.path.join(BASE_DIR, '../ai/note_scaler.pkl')
 DURATION_SCALER_PATH = os.path.join(BASE_DIR, '../ai/duration_scaler.pkl')
 VELOCITY_SCALER_PATH = os.path.join(BASE_DIR, '../ai/velocity_scaler.pkl')
 DATA_JSON_PATH       = os.path.join(BASE_DIR, '../ai/sad_midi_data.json')
+DEGREES_PATH         = os.path.join(BASE_DIR, '../ai/scale_degrees.json')
 
-# Rango base para las melodías y acordes (en semitonos MIDI)
+# Rango MIDI válido
 LOWER_BOUND = 48   # C3
 UPPER_BOUND = 84   # C6
 
-# Definición de escalas
-SCALES = {
-    "AMINOR": ["A", "B", "C", "D", "E", "F", "G"],
-    "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"],
-    "BMINOR": ["B", "C#", "D", "E", "F#", "G", "A"],
-    "CMINOR": ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
-    "C#MINOR": ["C#", "D#", "E", "F#", "G#", "A", "B"],
-    "DMINOR": ["D", "E", "F", "G", "A", "Bb", "C"],
-    "D#MINOR": ["D#", "F", "F#", "G#", "A#", "B", "C#"],
-    "EMINOR": ["E", "F#", "G", "A", "B", "C", "D"],
-    "FMINOR": ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
-    "F#MINOR": ["F#", "G#", "A", "B", "C#", "D", "E"],
-    "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
-    "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"]
-}
+# Ticks por negra
+TICKS_PER_BEAT = 384
 
-# Mapeo semitonos (incluyendo bemoles enharmónicos)
+# Duraciones posibles (en negras / quarter-notes),
+# cada patrón suma 16 (4 compases de 4/4)
+DURATION_PATTERNS = [
+    [4, 4, 4, 4],  # 1 barra cada acorde
+    [2, 6, 2, 6],
+    [6, 2, 6, 2],
+    [3, 5, 3, 5],
+    [5, 3, 5, 3],
+]
+
+# Progresiones (grados 0=I,1=II°, ...,6=VII)
+PROGRESSIONS = [
+    [0,3,4,0],  [0,4,5,3],  [0,6,5,6],
+    [0,5,2,6],  [0,2,3,4],  [0,5,3,2],
+    [0,2,6,3],  [0,4,3,5],  [0,5,4,3],
+    [0,6,0,4],
+]
+
+# Carga grados de cada escala
+with open(DEGREES_PATH, 'r') as f:
+    SCALE_DEGREES = json.load(f)
+
+# Mapeo nota→semitono
 NOTE_TO_SEMITONE = {
-    "C":0,
-    "C#":1, "Db":1,
-    "D":2,
-    "D#":3, "Eb":3,
-    "E":4,  "Fb":4,
-    "F":5,  "E#":5,
+    "C":0, "C#":1, "Db":1,
+    "D":2, "D#":3, "Eb":3,
+    "E":4, "Fb":4,
+    "F":5, "E#":5,
     "F#":6, "Gb":6,
-    "G":7,
-    "G#":8, "Ab":8,
-    "A":9,
-    "A#":10,"Bb":10,
-    "B":11, "Cb":11
+    "G":7, "G#":8, "Ab":8,
+    "A":9, "A#":10,"Bb":10,
+    "B":11,"Cb":11
 }
 
-# Precomputo semitonos por escala
-SCALE_SEMITONES = {
-    scale: [NOTE_TO_SEMITONE[n] for n in notes]
-    for scale, notes in SCALES.items()
-}
+def clamp_to_range(n: int) -> int:
+    """Asegura que n quede entre LOWER_BOUND y UPPER_BOUND ajustando octavas."""
+    while n < LOWER_BOUND: n += 12
+    while n > UPPER_BOUND: n -= 12
+    return n
 
-# Carga de modelos
-chord_model  = tf.keras.models.load_model(CHORD_MODEL_PATH)
+def build_triad_chords(
+    target_scale: str,
+    length: int = 4
+) -> Tuple[List[List[int]], List[int], List[int]]:
+    """
+    Construye triadas 1-3-5 según una progresión aleatoria.
+    Aplica uno de los DURATION_PATTERNS elegido al azar.
+    """
+    prog = random.choice(PROGRESSIONS)
+    # recorta o repite la progresión para obtener 'length' acordes
+    degrees = [ prog[i % len(prog)] for i in range(length) ]
+
+    # elige patrón de duraciones (en negras) y lo convierte a ticks
+    pattern = random.choice(DURATION_PATTERNS)
+    chord_durs = [ d * TICKS_PER_BEAT for d in pattern ]
+
+    chords, vels = [], []
+    for deg in degrees:
+        root_name  = SCALE_DEGREES[target_scale][deg]
+        third_name = SCALE_DEGREES[target_scale][(deg+2)%7]
+        fifth_name = SCALE_DEGREES[target_scale][(deg+4)%7]
+
+        root  = NOTE_TO_SEMITONE[root_name]
+        third = NOTE_TO_SEMITONE[third_name]
+        fifth = NOTE_TO_SEMITONE[fifth_name]
+
+        chords.append([
+            clamp_to_range(root),
+            clamp_to_range(third),
+            clamp_to_range(fifth)
+        ])
+        vels.append(random.randint(63, 95))  # velocity aleatorio [50%–75%]
+
+    return chords, chord_durs, vels
+
+# ————————————————————————————————————————————————
+# Carga modelo de melodía y escaladores
 melody_model = tf.keras.models.load_model(MELODY_MODEL_PATH)
+with open(NOTE_SCALER_PATH,     'rb') as f: note_scaler     = pickle.load(f)
+with open(DURATION_SCALER_PATH, 'rb') as f: duration_scaler = pickle.load(f)
+with open(VELOCITY_SCALER_PATH, 'rb') as f: velocity_scaler = pickle.load(f)
 
-# Carga de escaladores (si se quisieran reutilizar)
-with open(NOTE_SCALER_PATH, 'rb') as f:
-    note_scaler = pickle.load(f)
-with open(DURATION_SCALER_PATH, 'rb') as f:
-    duration_scaler = pickle.load(f)
-with open(VELOCITY_SCALER_PATH, 'rb') as f:
-    velocity_scaler = pickle.load(f)
-
+def is_semitone_in_scale(midi_note: int, scale: str) -> bool:
+    sems = [ NOTE_TO_SEMITONE[n] for n in SCALE_DEGREES[scale] ]
+    return (midi_note % 12) in sems
 
 def semitone_offset(from_scale: str, to_scale: str) -> int:
-    src = SCALE_SEMITONES[from_scale][0]
-    tgt = SCALE_SEMITONES[to_scale][0]
+    src = NOTE_TO_SEMITONE[SCALE_DEGREES[from_scale][0]]
+    tgt = NOTE_TO_SEMITONE[SCALE_DEGREES[to_scale][0]]
     diff = (tgt - src) % 12
     return diff if diff <= 6 else diff - 12
 
-
-def transpose_notes(notes: List[int], offset: int) -> List[int]:
-    return [n + offset for n in notes]
-
-
-def is_semitone_in_scale(midi_note: int, scale: str) -> bool:
-    return (midi_note % 12) in SCALE_SEMITONES[scale]
-
-
-def clamp_to_range(n: int, low: int = LOWER_BOUND, high: int = UPPER_BOUND) -> int:
-    """Desplaza la nota por octavas completas hasta que quede en [low, high]."""
-    while n < low:
-        n += 12
-    while n > high:
-        n -= 12
-    return n
-
-
-def generate_chords(target_scale: str, num_chords: int = 4) -> Tuple[List[List[int]], List[int], List[int]]:
+def generate_melody(
+    target_scale: str,
+    length: int = 8
+) -> Tuple[List[int], List[int], List[int]]:
+    """Genera melodía vía LSTM y la ajusta a la escala dada."""
     with open(DATA_JSON_PATH, 'r') as f:
         data = json.load(f)
 
-    # Solo entries de escalas menores
-    minor_entries = [
-        (scale, chord)
-        for scale, content in data.items()
-        if scale.endswith("MINOR")
-        for chord in content['acordes']
-    ]
-
-    np.random.shuffle(minor_entries)
-    seed_entries = minor_entries[:4]
-
-    # Transponer semillas
-    seed = []
-    for base_scale, chord in seed_entries:
-        offset = semitone_offset(base_scale, target_scale)
-        seed.append({
-            'notes':    transpose_notes(chord['notes'], offset),
-            'duration': chord['duration'],
-            'velocity': chord['velocity']
-        })
-
-    # Preparar input para el modelo
-    seq = []
-    for c in seed:
-        notes_padded = c['notes'] + [0] * (4 - len(c['notes']))
-        seq.append(notes_padded + [c['duration'], c['velocity']])
-    input_seq = np.array([seq], dtype=np.float32)
-
-    # Generar acordes
-    generated = []
-    for _ in range(num_chords):
-        pred = chord_model.predict(input_seq, verbose=0)[0]
-        pred_int = np.round(pred).astype(int).tolist()
-
-        # Snap a escala
-        chord = []
-        for n in pred_int:
-            if (n % 12) in SCALE_SEMITONES[target_scale]:
-                chord.append(n)
-            else:
-                base = n % 12
-                nearest = min(SCALE_SEMITONES[target_scale], key=lambda s: abs(s - base))
-                chord.append((n // 12) * 12 + nearest)
-        generated.append(chord)
-
-        # Actualizar input_seq
-        last_dur = input_seq[0, -1, 4]
-        last_vel = input_seq[0, -1, 5]
-        new_feat = np.array([chord + [last_dur, last_vel]], dtype=np.float32).reshape(1, 1, 6)
-        input_seq = np.concatenate([input_seq[:, 1:, :], new_feat], axis=1)
-
-    # Usamos la última duración/velocity semilla para todos
-    chord_durs = [seed[-1]['duration']] * num_chords
-    chord_vels = [seed[-1]['velocity']] * num_chords
-    return generated, chord_durs, chord_vels
-
-
-def generate_melody(target_scale: str, length: int = 8) -> Tuple[List[int], List[int], List[int]]:
-    with open(DATA_JSON_PATH, 'r') as f:
-        data = json.load(f)
-
+    # 3 notas semilla aleatorias (solo minor scales)
     minor_notes = [
         (scale, note_dict)
-        for scale, content in data.items()
-        if scale.endswith("MINOR")
+        for scale, content in data.items() if scale.endswith("MINOR")
         for note_dict in content['melodias']
     ]
-
-    np.random.shuffle(minor_notes)
+    random.shuffle(minor_notes)
     seed_notes = minor_notes[:3]
 
     seed = []
@@ -183,11 +144,10 @@ def generate_melody(target_scale: str, length: int = 8) -> Tuple[List[int], List
             'velocity': m['velocity']
         })
 
-    # Input para el modelo
-    seq = [[m['note'], m['duration'], m['velocity']] for m in seed]
+    seq = [[s['note'], s['duration'], s['velocity']] for s in seed]
     input_seq = np.array([seq], dtype=np.float32)
 
-    melody = []
+    melody, mdurs, mvels = [], [], []
     for _ in range(length):
         pred = melody_model.predict(input_seq, verbose=0)[0][0]
         note_int = int(round(pred))
@@ -197,60 +157,77 @@ def generate_melody(target_scale: str, length: int = 8) -> Tuple[List[int], List
             final_note = note_int
         else:
             base = note_int % 12
-            nearest = min(SCALE_SEMITONES[target_scale], key=lambda s: abs(s - base))
-            final_note = (note_int // 12) * 12 + nearest
+            sems = [ NOTE_TO_SEMITONE[n] for n in SCALE_DEGREES[target_scale] ]
+            nearest = min(sems, key=lambda s: abs(s-base))
+            final_note = (note_int//12)*12 + nearest
 
         melody.append(final_note)
+        mdurs.append(seed[-1]['duration'])
+        mvels.append(seed[-1]['velocity'])
 
-        last_dur = input_seq[0, -1, 1]
-        last_vel = input_seq[0, -1, 2]
-        new_feat = np.array([[final_note, last_dur, last_vel]], dtype=np.float32).reshape(1, 1, 3)
-        input_seq = np.concatenate([input_seq[:, 1:, :], new_feat], axis=1)
+        last_dur = input_seq[0,-1,1]
+        last_vel = input_seq[0,-1,2]
+        new_feat = np.array([[final_note, last_dur, last_vel]],
+                            dtype=np.float32).reshape(1,1,3)
+        input_seq = np.concatenate([input_seq[:,1:,:], new_feat], axis=1)
 
-    # Usamos la última duración/velocity semilla para todos
-    melody_durs = [seed[-1]['duration']] * length
-    melody_vels = [seed[-1]['velocity']] * length
-    return melody, melody_durs, melody_vels
+    return melody, mdurs, mvels
 
-
-def create_midi_file(chords: List[List[int]],
-                     chord_durs: List[int],
-                     chord_vels: List[int],
-                     melody: List[int],
-                     melody_durs: List[int],
-                     melody_vels: List[int],
-                     output_path: str = 'generated_music.mid'):
-    mid = MidiFile()
+def create_midi_file(
+    chords: List[List[int]],
+    chord_durs: List[int],
+    chord_vels: List[int],
+    melody: List[int],
+    mel_durs: List[int],
+    mel_vels: List[int],
+    output_path: str = 'generated_music.mid'
+):
+    """Ensambla y guarda el MIDI con acordes y melodía."""
+    mid   = MidiFile(ticks_per_beat=TICKS_PER_BEAT)
     track = MidiTrack()
     mid.tracks.append(track)
 
-    # Escribir acordes
+    # --- Acordes ---
     for chord, dur, vel in zip(chords, chord_durs, chord_vels):
-        for n in chord:
-            note = clamp_to_range(n)
-            track.append(Message('note_on',  note=note, velocity=vel, time=0))
-        for i, n in enumerate(chord):
-            note = clamp_to_range(n)
-            offset = dur + i * 5
-            track.append(Message('note_off', note=note, velocity=vel, time=offset))
+        for note in chord:
+            vel = random.randint(63, 80)
+            track.append(Message('note_on',
+                                 note=clamp_to_range(note),
+                                 velocity=vel,
+                                 time=0))
+        for i, note in enumerate(chord):
+            t = dur if i==0 else 0
+            track.append(Message('note_off',
+                                 note=clamp_to_range(note),
+                                 velocity=vel,
+                                 time=t))
 
-    # Escribir melodía
-    for n, dur, vel in zip(melody, melody_durs, melody_vels):
-        note = clamp_to_range(n)
-        track.append(Message('note_on',  note=note, velocity=vel, time=0))
-        track.append(Message('note_off', note=note, velocity=vel, time=dur))
+    # --- Melodía ---
+    for n, dur, vel in zip(melody, mel_durs, mel_vels):
+        vel = random.randint(63, 80)
+        track.append(Message('note_on',
+                             note=clamp_to_range(n),
+                             velocity=vel,
+                             time=0))
+        track.append(Message('note_off',
+                             note=clamp_to_range(n),
+                             velocity=vel,
+                             time=dur))
 
     mid.save(output_path)
     print(f'✅ Música generada y guardada en {output_path}')
 
-
-def generate_music(scale: str, output_path: str = 'generated_music.mid'):
+def generate_music(
+    scale: str,
+    output_path: str = 'generated_music.mid'
+):
+    """
+    scale: e.g. 'C', 'F#' + emoción → 'CMINOR' o 'F#MAJOR'.
+    """
     target = scale.upper()
-    if not target.endswith('MINOR') and not target.endswith('MAJOR'):
+    if not target.endswith(('MINOR','MAJOR')):
         target = f"{target}MINOR"
 
-    chords, chord_durs, chord_vels = generate_chords(target)
-    melody, melody_durs, melody_vels = generate_melody(target)
-    create_midi_file(chords, chord_durs, chord_vels,
-                     melody, melody_durs, melody_vels,
-                     output_path)
+    chords, cdurs, cvels = build_triad_chords(target)
+    melody, mdurs, mvels = generate_melody(target)
+    create_midi_file(chords, cdurs, cvels, melody, mdurs, mvels, output_path)

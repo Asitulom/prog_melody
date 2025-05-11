@@ -28,8 +28,8 @@ cd ai
 python process_midi.py
 
 # 5. Entrenar los modelos LSTM
-python train_melody_model.py
-python train_chord_model.py
+python train_melody_classifier.py
+# python train_chord_model.py
 
 # 6.  
 cd C:\Users\Asier\Documents\PFG\prog_melody\backend

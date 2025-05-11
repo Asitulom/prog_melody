@@ -1,4 +1,4 @@
-# train_melody_model.py
+# train_melody_classifier.py
 
 import json
 import numpy as np
