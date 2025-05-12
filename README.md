@@ -23,29 +23,41 @@ venv\Scripts\activate
 # 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 4. Procesar archivos MIDI (esto crea sad_midi_data.json)
+# 4. Procesar y aumentar tu dataset “sad”
 cd ai
-python process_midi.py
 
-# 5. Entrenar los modelos LSTM
-python train_melody_classifier.py
-# python train_chord_model.py
+python process_midi.py            
+# → sad_midi_data.json
 
-# 6.  
-cd C:\Users\Asier\Documents\PFG\prog_melody\backend
-python generate_music.py
+python augment_transpose.py       
+# → sad_midi_data_augmented.json
+
+# 5. Pre-entrenamiento con tu corpus amplio (Zelda, etc.)
+python train_full_corpus.py       
+# → full_melody.h5 + scalers
+
+# 6. Fine-tuning en “sad” + pasos 3 y 4
+python train_melody_classifier.py 
+# → melody_model.h5
+
+# 7. Levantar el backend
 
 
-# 7. Volver a la raíz del proyecto para lanzar el backend
-cd ..
+cd C:\Users\Asier\Documents\PFG\prog_melody
+
 uvicorn backend.app:app --reload
+
 http://127.0.0.1:8000/docs
 
-# 8. En una nueva terminal (o nueva pestaña)
+# Puedes comprobar Swagger en http://127.0.0.1:8000/docs
+
+# 8. Levantar el frontend en otra terminal
 cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
+
 python -m http.server 8001
 
-http://localhost:8001
+# Accede en http://localhost:8001
+
 
  
 # Extra. Para ver los usuarios de la base de datos
