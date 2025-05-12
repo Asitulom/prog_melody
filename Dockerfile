@@ -7,20 +7,19 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear directorio de trabajo
 WORKDIR /app
-
-# Copiar archivos del proyecto
 COPY . .
 
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Preprocesar MIDI y entrenar modelo al construir
-RUN python ai/process_midi.py && python ai/melody_model.py
+# Preprocesar MIDI y entrenar modelo de melodía
+RUN python ai/process_midi.py \
+    && python ai/train_melody_classifier.py \
+    && echo "✅ Modelos de melodía entrenados"
 
-# Exponer puerto FastAPI
+# Entrenar también modelo de acordes
+# RUN python ai/train_chord_model.py
+
 EXPOSE 8000
-
-# Comando para iniciar el servidor
 CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
