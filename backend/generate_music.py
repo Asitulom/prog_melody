@@ -20,7 +20,7 @@ DATA_JSON_PATH      = os.path.join(BASE_DIR, '../ai/sad_midi_data.json')
 DEGREES_PATH        = os.path.join(BASE_DIR, '../ai/scale_degrees.json')
 
 # MIDI configuration
-LOWER_BOUND     = 48   # C3
+LOWER_BOUND     = 36   # C3
 UPPER_BOUND     = 84   # C6
 TICKS_PER_BEAT  = 384
 
@@ -73,42 +73,65 @@ def build_triad_chords(
     length: int = 4
 ) -> Tuple[List[List[int]], List[int], List[int]]:
     """
-    Genera 'length' acordes donde el 50% son triadas y el 50% llevan séptima.
+    Genera 'length' acordes donde el 65% son triadas y el 35% llevan séptima.
+    La root se duplica en octava 3, 4 y 5; third/fifth/(seventh) en octava 5.
     """
+    # 1) Elegir progresión y duraciones
     prog       = random.choice(PROGRESSIONS)
     degrees    = [prog[i % len(prog)] for i in range(length)]
     pattern    = random.choice(DURATION_PATTERNS)
     chord_durs = [d * TICKS_PER_BEAT for d in pattern]
 
-    # Solo dos opciones: triad o 7th, con pesos 0.5 y 0.5
+    # 2) Decidir triad vs 7th (65% / 35%)
     ext_types = ['triad', '7th']
-    weights   = [0.5,     0.5]
-
-    # Elegimos 'length' banderas según esos pesos
+    weights   = [0.65, 0.35]
     ext_flags = random.choices(ext_types, weights=weights, k=length)
 
     chords, vels = [], []
-    notes        = SCALE_DEGREES[target_scale]
+    notes        = SCALE_DEGREES[target_scale]  # ej. ["C","D","E",...]
 
     for deg, ext in zip(degrees, ext_flags):
-        # Construir la triada básica
-        root  = notes[deg]
-        third = notes[(deg+2)%7]
-        fifth = notes[(deg+4)%7]
-        chord_names = [root, third, fifth]
+        # nombres de grados
+        root_name  = notes[deg]
+        third_name = notes[(deg+2) % 7]
+        fifth_name = notes[(deg+4) % 7]
 
-        # Si toca séptima, añadimos grado VII
+        # pitch-classes (0..11)
+        root_pc  = NOTE_TO_SEMITONE[root_name]
+        third_pc = NOTE_TO_SEMITONE[third_name]
+        fifth_pc = NOTE_TO_SEMITONE[fifth_name]
+
+        # semitonos de root en 3ª, 4ª y 5ª octava
+        root_3rd = clamp_to_range(root_pc + 36)  # C3 = 36
+        root_4th = clamp_to_range(root_pc + 48)  # C4 = 48
+        root_5th = clamp_to_range(root_pc + 60)  # C5 = 60
+
+        # third y fifth relativos a root_5th
+        third_5th = clamp_to_range(root_5th + ((third_pc - root_pc) % 12))
+        fifth_5th = clamp_to_range(root_5th + ((fifth_pc - root_pc) % 12))
+
+        # montar notas del acorde
+        chord_notes = [
+            root_3rd,
+            root_4th,
+            root_5th,
+            third_5th,
+            fifth_5th,
+        ]
+
+        # si es séptima, añadirla en octava 5
         if ext == '7th':
-            chord_names.append(notes[(deg+6)%7])
+            sev_name = notes[(deg+6) % 7]
+            sev_pc   = NOTE_TO_SEMITONE[sev_name]
+            sev_5th  = clamp_to_range(root_5th + ((sev_pc - root_pc) % 12))
+            chord_notes.append(sev_5th)
 
-        # Convertir nombres a semitonos y ajustar al rango
-        semis = [ clamp_to_range(NOTE_TO_SEMITONE[n]) for n in chord_names ]
-        chords.append(semis)
-
-        # Velocidad aleatoria
+        chords.append(chord_notes)
         vels.append(random.randint(63, 95))
 
     return chords, chord_durs, vels
+
+
 
 
 # ————————————————————————————————————————————————
