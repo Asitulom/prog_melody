@@ -180,75 +180,65 @@ import random
 from typing import List
 
 def create_midi_file(
-    chords: List[List[int]],
-    chord_durs: List[int],
-    chord_vels: List[int],
-    melody: List[int],
-    mel_durs: List[int],
-    mel_vels: List[int],
-    output_path: str = 'generated_music.mid'
+    chords, chord_durs, chord_vels,
+    melody, mel_durs, mel_vels,
+    output_path='generated_music.mid'
 ):
-    """
-    Crea un MIDI con UN SOLO TRACK que contiene
-    tanto los acordes como la melodía intercalados
-    según su tiempo absoluto (tick desde el inicio).
-    """
-    mid = MidiFile(ticks_per_beat=TICKS_PER_BEAT)
+    # — 1) Emparejar duraciones totales —
+    total_chord   = sum(chord_durs)
+    total_mel     = sum(mel_durs)
+    scale_factor  = total_chord / total_mel if total_mel > 0 else 1.0
+
+    # Ajustamos cada duración de la melodía
+    mel_durs = [
+        max(1, int(d * scale_factor))
+        for d in mel_durs
+    ]
+
+    # — 2) Recopilar todos los eventos con tiempo absoluto —
+    events = []
+    abs_time = 0
+
+    # Acordes (octava +1)
+    for chord, dur, _ in zip(chords, chord_durs, chord_vels):
+        for note in chord:
+            # transponer acordes una octava
+            note_up = clamp_to_range(note + 12)
+            vel     = random.randint(63, 80)
+            # note_on
+            events.append((abs_time,
+                           Message('note_on',  note=note_up, velocity=vel)))
+            # note_off
+            events.append((abs_time + dur,
+                           Message('note_off', note=note_up, velocity=vel)))
+        abs_time += dur
+
+    # Melodía (sin cambio de octava)
+    abs_time = 0
+    for n, dur, _ in zip(melody, mel_durs, mel_vels):
+        note_m = clamp_to_range(n)
+        vel   = random.randint(53, 70)
+        events.append((abs_time,
+                       Message('note_on',  note=note_m, velocity=vel)))
+        events.append((abs_time + dur,
+                       Message('note_off', note=note_m, velocity=vel)))
+        abs_time += dur
+
+    # — 3) Ordenar e ir volcando a delta-times —
+    events.sort(key=lambda x: x[0])
+    mid   = MidiFile(ticks_per_beat=TICKS_PER_BEAT)
     track = MidiTrack()
     mid.tracks.append(track)
 
-    # 1) Recopilar eventos con tiempo absoluto
-    events = []  # cada elemento: (abs_time, Message)
-    # — acordes —
-    abs_time = 0
-    for chord, dur, _ in zip(chords, chord_durs, chord_vels):
-        dur = max(1, dur)
-        # NOTE ON de todas las notas del acorde a abs_time
-        for note in chord:
-            vel = random.randint(63, 80)
-            events.append((abs_time,
-                           Message('note_on',
-                                   note=clamp_to_range(note),
-                                   velocity=vel)))
-        # NOTE OFF de todas las notas del acorde a abs_time+dur
-        for note in chord:
-            events.append((abs_time + dur,
-                           Message('note_off',
-                                   note=clamp_to_range(note),
-                                   velocity=vel)))
-        abs_time += dur
-
-    # — melodía —
-    abs_time = 0
-    for n, dur, _ in zip(melody, mel_durs, mel_vels):
-        dur = max(1, dur)
-        vel = random.randint(63, 80)
-        # NOTE ON de la nota melódica
-        events.append((abs_time,
-                       Message('note_on',
-                               note=clamp_to_range(n),
-                               velocity=vel)))
-        # NOTE OFF de la nota melódica
-        events.append((abs_time + dur,
-                       Message('note_off',
-                               note=clamp_to_range(n),
-                               velocity=vel)))
-        abs_time += dur
-
-    # 2) Ordenar eventos por tiempo absoluto
-    events.sort(key=lambda x: x[0])
-
-    # 3) Convertir tiempos absolutos en tiempos delta y volcar al track
     last_time = 0
     for abs_t, msg in events:
-        delta = abs_t - last_time
-        msg.time = delta
+        msg.time = abs_t - last_time
         track.append(msg)
         last_time = abs_t
 
-    # 4) Guardar MIDI
     mid.save(output_path)
-    print(f'✅ Música generada y guardada en {output_path}')
+    print(f'✅ Música guardada en {output_path}')
+
 
 # ————————————————————————————————————————————————
 def generate_music(
