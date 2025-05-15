@@ -72,26 +72,44 @@ def build_triad_chords(
     target_scale: str,
     length: int = 4
 ) -> Tuple[List[List[int]], List[int], List[int]]:
-    prog = random.choice(PROGRESSIONS)
-    degrees = [prog[i % len(prog)] for i in range(length)]
-    pattern = random.choice(DURATION_PATTERNS)
+    """
+    Genera 'length' acordes donde el 50% son triadas y el 50% llevan séptima.
+    """
+    prog       = random.choice(PROGRESSIONS)
+    degrees    = [prog[i % len(prog)] for i in range(length)]
+    pattern    = random.choice(DURATION_PATTERNS)
     chord_durs = [d * TICKS_PER_BEAT for d in pattern]
 
+    # Solo dos opciones: triad o 7th, con pesos 0.5 y 0.5
+    ext_types = ['triad', '7th']
+    weights   = [0.5,     0.5]
+
+    # Elegimos 'length' banderas según esos pesos
+    ext_flags = random.choices(ext_types, weights=weights, k=length)
+
     chords, vels = [], []
-    for deg in degrees:
-        root_name  = SCALE_DEGREES[target_scale][deg]
-        third_name = SCALE_DEGREES[target_scale][(deg+2)%7]
-        fifth_name = SCALE_DEGREES[target_scale][(deg+4)%7]
-        root  = NOTE_TO_SEMITONE[root_name]
-        third = NOTE_TO_SEMITONE[third_name]
-        fifth = NOTE_TO_SEMITONE[fifth_name]
-        chords.append([
-            clamp_to_range(root),
-            clamp_to_range(third),
-            clamp_to_range(fifth)
-        ])
+    notes        = SCALE_DEGREES[target_scale]
+
+    for deg, ext in zip(degrees, ext_flags):
+        # Construir la triada básica
+        root  = notes[deg]
+        third = notes[(deg+2)%7]
+        fifth = notes[(deg+4)%7]
+        chord_names = [root, third, fifth]
+
+        # Si toca séptima, añadimos grado VII
+        if ext == '7th':
+            chord_names.append(notes[(deg+6)%7])
+
+        # Convertir nombres a semitonos y ajustar al rango
+        semis = [ clamp_to_range(NOTE_TO_SEMITONE[n]) for n in chord_names ]
+        chords.append(semis)
+
+        # Velocidad aleatoria
         vels.append(random.randint(63, 95))
+
     return chords, chord_durs, vels
+
 
 # ————————————————————————————————————————————————
 # Load melody model & scalers
