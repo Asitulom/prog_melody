@@ -89,3 +89,13 @@ http://localhost:8001
 
 
 Control + shift + r
+
+
+QUITAR BPM
+COMPROBAR QUE TODO FUNCIONA BIEN (CON DOCKER?)
+
+
+EXTRA:
+AÑADIR PROGRESIONES DE 3 (X2)
+
+
