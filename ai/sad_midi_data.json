@@ -1,47 +1,5 @@
 {
     "AMINOR": {
-        "acordes": [
-            {
-                "notes": [
-                    33,
-                    69,
-                    72,
-                    76
-                ],
-                "duration": 384,
-                "velocity": 103
-            },
-            {
-                "notes": [
-                    33,
-                    69,
-                    72,
-                    76
-                ],
-                "duration": 384,
-                "velocity": 120
-            },
-            {
-                "notes": [
-                    29,
-                    65,
-                    69,
-                    72
-                ],
-                "duration": 384,
-                "velocity": 120
-            },
-            {
-                "notes": [
-                    26,
-                    65,
-                    69,
-                    62
-                ],
-                "duration": 384,
-                "velocity": 120
-            }
-        ],
         "melodias": [
             {
                 "note": 84,
@@ -110,63 +68,10 @@
             }
         ]
     },
+    "F#MINOR": {
+        "melodias": []
+    },
     "D#MINOR": {
-        "acordes": [
-            {
-                "notes": [
-                    66,
-                    70,
-                    63
-                ],
-                "duration": 384,
-                "velocity": 87
-            },
-            {
-                "notes": [
-                    59,
-                    63,
-                    66
-                ],
-                "duration": 192,
-                "velocity": 88
-            },
-            {
-                "notes": [
-                    68,
-                    65,
-                    61
-                ],
-                "duration": 192,
-                "velocity": 87
-            },
-            {
-                "notes": [
-                    63,
-                    70,
-                    66
-                ],
-                "duration": 384,
-                "velocity": 90
-            },
-            {
-                "notes": [
-                    63,
-                    66,
-                    59
-                ],
-                "duration": 192,
-                "velocity": 93
-            },
-            {
-                "notes": [
-                    65,
-                    61,
-                    70
-                ],
-                "duration": 192,
-                "velocity": 91
-            }
-        ],
         "melodias": [
             {
                 "note": 73,
@@ -236,72 +141,6 @@
         ]
     },
     "GMINOR": {
-        "acordes": [
-            {
-                "notes": [
-                    62,
-                    58,
-                    55
-                ],
-                "duration": 288,
-                "velocity": 84
-            },
-            {
-                "notes": [
-                    53,
-                    57,
-                    60
-                ],
-                "duration": 288,
-                "velocity": 84
-            },
-            {
-                "notes": [
-                    57,
-                    60,
-                    53
-                ],
-                "duration": 96,
-                "velocity": 84
-            },
-            {
-                "notes": [
-                    57,
-                    60,
-                    53
-                ],
-                "duration": 96,
-                "velocity": 84
-            },
-            {
-                "notes": [
-                    57,
-                    50,
-                    53,
-                    57
-                ],
-                "duration": 3,
-                "velocity": 102
-            },
-            {
-                "notes": [
-                    51,
-                    55,
-                    58
-                ],
-                "duration": 192,
-                "velocity": 84
-            },
-            {
-                "notes": [
-                    51,
-                    55,
-                    58
-                ],
-                "duration": 288,
-                "velocity": 84
-            }
-        ],
         "melodias": [
             {
                 "note": 70,
@@ -371,62 +210,6 @@
         ]
     },
     "EMINOR": {
-        "acordes": [
-            {
-                "notes": [
-                    55,
-                    59,
-                    52
-                ],
-                "duration": 384,
-                "velocity": 89
-            },
-            {
-                "notes": [
-                    57,
-                    50,
-                    54
-                ],
-                "duration": 192,
-                "velocity": 89
-            },
-            {
-                "notes": [
-                    57,
-                    50,
-                    54
-                ],
-                "duration": 96,
-                "velocity": 89
-            },
-            {
-                "notes": [
-                    57,
-                    50,
-                    54
-                ],
-                "duration": 96,
-                "velocity": 89
-            },
-            {
-                "notes": [
-                    48,
-                    55,
-                    52
-                ],
-                "duration": 384,
-                "velocity": 89
-            },
-            {
-                "notes": [
-                    47,
-                    50,
-                    43
-                ],
-                "duration": 384,
-                "velocity": 89
-            }
-        ],
         "melodias": [
             {
                 "note": 71,
@@ -486,7 +269,6 @@
         ]
     },
     "FMINOR": {
-        "acordes": [],
         "melodias": [
             {
                 "note": 80,
@@ -501,22 +283,15 @@
         ]
     },
     "BMINOR": {
-        "acordes": [],
         "melodias": [
             {
                 "note": 76,
                 "duration": 192,
                 "velocity": 84
-            },
-            {
-                "note": 76,
-                "duration": 2,
-                "velocity": 100
             }
         ]
     },
     "CMINOR": {
-        "acordes": [],
         "melodias": [
             {
                 "note": 72,
@@ -561,7 +336,6 @@
         ]
     },
     "C#MINOR": {
-        "acordes": [],
         "melodias": [
             {
                 "note": 76,
@@ -601,7 +375,6 @@
         ]
     },
     "DMINOR": {
-        "acordes": [],
         "melodias": [
             {
                 "note": 74,

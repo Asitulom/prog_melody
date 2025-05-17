@@ -26,7 +26,10 @@ pip install -r requirements.txt
 # 4. Procesar y aumentar tu dataset “sad”
 cd ai
 
-python process_midi.py            
+python process_midi.py 
+python process_midi_happy.py
+
+
 # → sad_midi_data.json
 
 python augment_transpose.py       

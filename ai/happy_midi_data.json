@@ -1,0 +1,361 @@
+{
+    "AMAJOR": {
+        "melodias": [
+            {
+                "note": 81,
+                "duration": 96,
+                "velocity": 114
+            },
+            {
+                "note": 80,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 78,
+                "duration": 96,
+                "velocity": 119
+            },
+            {
+                "note": 81,
+                "duration": 384,
+                "velocity": 97
+            },
+            {
+                "note": 81,
+                "duration": 48,
+                "velocity": 89
+            },
+            {
+                "note": 80,
+                "duration": 48,
+                "velocity": 105
+            },
+            {
+                "note": 78,
+                "duration": 96,
+                "velocity": 103
+            },
+            {
+                "note": 76,
+                "duration": 96,
+                "velocity": 120
+            },
+            {
+                "note": 76,
+                "duration": 96,
+                "velocity": 115
+            },
+            {
+                "note": 88,
+                "duration": 96,
+                "velocity": 69
+            },
+            {
+                "note": 86,
+                "duration": 96,
+                "velocity": 102
+            },
+            {
+                "note": 74,
+                "duration": 48,
+                "velocity": 117
+            },
+            {
+                "note": 73,
+                "duration": 48,
+                "velocity": 88
+            }
+        ]
+    },
+    "F#MAJOR": {
+        "melodias": []
+    },
+    "D#MAJOR": {
+        "melodias": [
+            {
+                "note": 75,
+                "duration": 288,
+                "velocity": 83
+            },
+            {
+                "note": 77,
+                "duration": 96,
+                "velocity": 75
+            },
+            {
+                "note": 72,
+                "duration": 96,
+                "velocity": 75
+            },
+            {
+                "note": 70,
+                "duration": 96,
+                "velocity": 75
+            },
+            {
+                "note": 77,
+                "duration": 96,
+                "velocity": 83
+            },
+            {
+                "note": 79,
+                "duration": 192,
+                "velocity": 83
+            },
+            {
+                "note": 82,
+                "duration": 96,
+                "velocity": 83
+            },
+            {
+                "note": 80,
+                "duration": 384,
+                "velocity": 73
+            }
+        ]
+    },
+    "GMAJOR": {
+        "melodias": [
+            {
+                "note": 71,
+                "duration": 96,
+                "velocity": 93
+            },
+            {
+                "note": 69,
+                "duration": 48,
+                "velocity": 93
+            },
+            {
+                "note": 67,
+                "duration": 48,
+                "velocity": 93
+            },
+            {
+                "note": 66,
+                "duration": 192,
+                "velocity": 93
+            },
+            {
+                "note": 69,
+                "duration": 96,
+                "velocity": 93
+            },
+            {
+                "note": 71,
+                "duration": 192,
+                "velocity": 93
+            },
+            {
+                "note": 67,
+                "duration": 96,
+                "velocity": 93
+            },
+            {
+                "note": 66,
+                "duration": 384,
+                "velocity": 93
+            }
+        ]
+    },
+    "EMAJOR": {
+        "melodias": [
+            {
+                "note": 71,
+                "duration": 192,
+                "velocity": 87
+            },
+            {
+                "note": 76,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 75,
+                "duration": 48,
+                "velocity": 87
+            },
+            {
+                "note": 73,
+                "duration": 48,
+                "velocity": 87
+            },
+            {
+                "note": 75,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 69,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 68,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 66,
+                "duration": 288,
+                "velocity": 87
+            },
+            {
+                "note": 64,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 64,
+                "duration": 96,
+                "velocity": 87
+            },
+            {
+                "note": 63,
+                "duration": 288,
+                "velocity": 87
+            }
+        ]
+    },
+    "FMAJOR": {
+        "melodias": [
+            {
+                "note": 81,
+                "duration": 288,
+                "velocity": 84
+            }
+        ]
+    },
+    "BMAJOR": {
+        "melodias": [
+            {
+                "note": 76,
+                "duration": 192,
+                "velocity": 84
+            }
+        ]
+    },
+    "CMAJOR": {
+        "melodias": [
+            {
+                "note": 72,
+                "duration": 288,
+                "velocity": 70
+            },
+            {
+                "note": 74,
+                "duration": 48,
+                "velocity": 80
+            },
+            {
+                "note": 76,
+                "duration": 48,
+                "velocity": 84
+            },
+            {
+                "note": 72,
+                "duration": 288,
+                "velocity": 81
+            },
+            {
+                "note": 69,
+                "duration": 96,
+                "velocity": 74
+            },
+            {
+                "note": 71,
+                "duration": 384,
+                "velocity": 86
+            },
+            {
+                "note": 69,
+                "duration": 192,
+                "velocity": 89
+            },
+            {
+                "note": 67,
+                "duration": 192,
+                "velocity": 67
+            }
+        ]
+    },
+    "C#MAJOR": {
+        "melodias": [
+            {
+                "note": 77,
+                "duration": 288,
+                "velocity": 70
+            },
+            {
+                "note": 75,
+                "duration": 48,
+                "velocity": 80
+            },
+            {
+                "note": 73,
+                "duration": 48,
+                "velocity": 84
+            },
+            {
+                "note": 72,
+                "duration": 192,
+                "velocity": 81
+            },
+            {
+                "note": 75,
+                "duration": 192,
+                "velocity": 74
+            },
+            {
+                "note": 72,
+                "duration": 576,
+                "velocity": 86
+            },
+            {
+                "note": 73,
+                "duration": 192,
+                "velocity": 86
+            }
+        ]
+    },
+    "DMAJOR": {
+        "melodias": [
+            {
+                "note": 74,
+                "duration": 384,
+                "velocity": 79
+            },
+            {
+                "note": 76,
+                "duration": 336,
+                "velocity": 87
+            },
+            {
+                "note": 73,
+                "duration": 96,
+                "velocity": 90
+            },
+            {
+                "note": 81,
+                "duration": 48,
+                "velocity": 88
+            },
+            {
+                "note": 79,
+                "duration": 336,
+                "velocity": 82
+            },
+            {
+                "note": 78,
+                "duration": 192,
+                "velocity": 91
+            },
+            {
+                "note": 76,
+                "duration": 96,
+                "velocity": 94
+            }
+        ]
+    }
+}

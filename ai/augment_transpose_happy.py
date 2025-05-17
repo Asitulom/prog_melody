@@ -1,0 +1,29 @@
+# ai/augment_transpose_happy.py
+import json, os
+
+# Cargamos el JSON de HAPPY MAJOR generado con process_midi.py
+IN_PATH  = os.path.join(os.path.dirname(__file__), "happy_midi_data.json")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "happy_midi_data_augmented.json")
+
+with open(IN_PATH, "r") as f:
+    raw = json.load(f)
+
+augmented = {}
+
+# Para cada escala y cada melodía, generamos 12 transposiciones
+for scale, block in raw.items():
+    for note in block.get("melodias", []):
+        orig = note["note"]
+        for shift in range(12):
+            augmented.setdefault(scale, {"melodias": []})
+            augmented[scale]["melodias"].append({
+                "note":     (orig + shift) % 128,
+                "duration": note["duration"],
+                "velocity": note["velocity"]
+            })
+
+# Volcamos el JSON aumentado
+with open(OUT_PATH, "w") as f:
+    json.dump(augmented, f, indent=2)
+
+print(f"✅ Augmented data saved to {OUT_PATH}")

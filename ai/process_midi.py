@@ -21,11 +21,6 @@ SCALES = {
     "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"]
 }
 
-MIDI_TO_NOTE = {i: v for i, v in enumerate(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] * 11)}
-NOTE_TO_MIDI = {v: k for k, v in MIDI_TO_NOTE.items()}
-
-CHORD_THRESHOLD = 30
-
 # Función para extraer escala del nombre del archivo
 def get_scale_from_filename(filename):
     parts = filename.split(" - ")
@@ -34,76 +29,56 @@ def get_scale_from_filename(filename):
         return scale.upper()
     return None
 
-# Función para procesar un archivo MIDI
-def process_midi_file(midi_path, is_chord):
+# Función para procesar un archivo MIDI (solo melodías)
+def process_midi_file(midi_path):
     mid = mido.MidiFile(midi_path)
-    chords = []
     melody = []
     current_time = 0
-    active_notes = []
-    note_durations = {}
+    active_note = None  # tuple (note, velocity, start_time)
 
     for track in mid.tracks:
         for msg in track:
             current_time += msg.time
 
             if msg.type == 'note_on' and msg.velocity > 0:
-                active_notes.append((msg.note, msg.velocity, current_time))
-                note_durations[msg.note] = current_time
+                # iniciamos una nota
+                active_note = (msg.note, msg.velocity, current_time)
 
-            elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
-                if is_chord and len(active_notes) >= 3:
-                    start_times = [note_durations[n[0]] for n in active_notes]
-                    min_time = min(start_times)
-                    max_time = current_time  # Finaliza cuando ocurre el último note_off
-
-                    # Calcular duración del acorde correctamente
-                    duration = max(1, max_time - min_time)
-
-                    chords.append({
-                        "notes": [n[0] for n in active_notes],
-                        "duration": duration,
-                        "velocity": max([n[1] for n in active_notes])
-                    })
-
-                elif not is_chord and len(active_notes) == 1:
-                    note = active_notes[0]
-                    duration = max(1, current_time - note[2])
-
+            elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
+                if active_note and active_note[0] == msg.note:
+                    # calculamos duración
+                    note, velocity, start_time = active_note
+                    duration = max(1, current_time - start_time)
                     melody.append({
-                        "note": note[0],
+                        "note": note,
                         "duration": duration,
-                        "velocity": note[1]
+                        "velocity": velocity
                     })
+                active_note = None
 
-                active_notes = []
+    return melody
 
-    return chords if is_chord else melody
-
-# Función para procesar toda la carpeta
+# Función para procesar toda la carpeta de melodías
 def process_midi_folder(folder_path, output_json="midi_data.json"):
-    data = defaultdict(lambda: {"acordes": [], "melodias": []})
+    data = defaultdict(lambda: {"melodias": []})
+    subpath = os.path.join(folder_path, "melody")
 
-    for subdir in ["chords", "melody"]:
-        subpath = os.path.join(folder_path, subdir)
-        is_chord = subdir == "chords"
+    print(f"Buscando archivos en: {subpath}")
+    if not os.path.exists(subpath):
+        print(f"❌ No existe la carpeta: {subpath}")
+        return
 
-        print(f"Buscando archivos en: {subpath}")
-        if not os.path.exists(subpath):
-            print(f"❌ No existe la carpeta: {subpath}")
-            continue
-
-        for file in os.listdir(subpath):
-            if file.endswith(".mid"):
-                midi_path = os.path.join(subpath, file)
-                print(f"Procesando archivo: {midi_path}")
-                scale = get_scale_from_filename(file)
-                if scale and scale in SCALES:
-                    print(f"Escala detectada: {scale} - Tipo: {'Acorde' if is_chord else 'Melodía'}")
-                    processed_data = process_midi_file(midi_path, is_chord)
-                    data[scale]["acordes" if is_chord else "melodias"].extend(processed_data)
-                else:
-                    print(f"⚠️ Escala no reconocida o archivo mal nombrado: {file}")
+    for file in os.listdir(subpath):
+        if file.endswith(".mid"):
+            midi_path = os.path.join(subpath, file)
+            print(f"Procesando archivo: {midi_path}")
+            scale = get_scale_from_filename(file)
+            if scale and scale in SCALES:
+                print(f"Escala detectada: {scale} - Melodía")
+                processed_data = process_midi_file(midi_path)
+                data[scale]["melodias"].extend(processed_data)
+            else:
+                print(f"⚠️ Escala no reconocida o archivo mal nombrado: {file}")
 
     with open(output_json, "w") as f:
         json.dump(data, f, indent=4)

@@ -8,7 +8,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dropout, Dense
 from tensorflow.keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
-from process_midi import process_midi_file  # tu función original
+from process_midi import process_midi_file  # función de extracción de melodías
+from tensorflow.keras.callbacks import EarlyStopping
 
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 CORPUS_DIR  = os.path.join(BASE_DIR, "datasets", "corpus")
@@ -25,7 +26,7 @@ for fn in os.listdir(CORPUS_DIR):
         continue
     path = os.path.join(CORPUS_DIR, fn)
     try:
-        mels = process_midi_file(path, is_chord=False)
+        mels = process_midi_file(path)
         if not mels:
             print(f"⚠️ {fn}: no extrajo notas (vacío), se ignora.")
         else:
@@ -72,7 +73,7 @@ y = np.array(y, dtype=np.float32)
 print(f"🔢 Secuencias totales: {X.shape[0]} → cada una de {SEQ_LEN}×3")
 
 # ——— SAMPLE RÁPIDO PARA TEST ———
-SAMPLE_SIZE = 20000
+SAMPLE_SIZE = 20000 #100000
 if X.shape[0] > SAMPLE_SIZE:
     idx = np.random.choice(X.shape[0], SAMPLE_SIZE, replace=False)
     X = X[idx]
@@ -96,12 +97,20 @@ def build_model(input_shape):
 # 6) Entrenar y guardar
 model = build_model((SEQ_LEN, 3))
 print("🚀 Entrenando modelo genérico sobre muestra…")
+
+early = EarlyStopping(
+    monitor="val_loss",
+    patience=10,
+    restore_best_weights=True
+)
+
 model.fit(
     X, y,
-    epochs=3,              # pocos epochs para test
+    epochs=3,             #50
     batch_size=64,
     validation_split=0.1,
-    shuffle=True
+    shuffle=True,
+    callbacks=[early]
 )
 
 # Guardar pesos y escaladores
