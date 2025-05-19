@@ -1,13 +1,14 @@
 <!-- usuarios.html -->
 
+<!-- usuarios.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MIDIs de Usuarios 🎵</title>
-  <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <header>
@@ -18,7 +19,8 @@
         <a href="usuarios.html" class="active">MIDIs de otros usuarios</a>
       </div>
       <div class="profile-menu">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" alt="Perfil" class="profile-icon" />
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+             alt="Perfil" class="profile-icon"/>
         <div class="dropdown-content">
           <a href="login.html">Iniciar sesión</a>
           <a href="register.html">Registrarse</a>
@@ -38,12 +40,42 @@
 
       <div id="uploadSection">
         <h3>📤 Sube tu propia melodía</h3>
-        <input type="file" id="midiUpload" accept=".mid" />
-        <button onclick="subirMelodia()">Subir MIDI</button>
+        <label for="scaleNote">Nota:</label>
+        <input list="noteList" id="scaleNote" placeholder="Ej.: C"/>
+        <datalist id="noteList">
+          <option value="C">
+          <option value="C#">
+          <option value="D">
+          <option value="D#">
+          <option value="E">
+          <option value="F">
+          <option value="F#">
+          <option value="G">
+          <option value="G#">
+          <option value="A">
+          <option value="A#">
+          <option value="B">
+        </datalist>
+
+        <label for="scaleMode">Modo:</label>
+        <select id="scaleMode">
+          <option value="MAJOR">Major</option>
+          <option value="MINOR">Minor</option>
+        </select>
+
+        <input type="file" id="midiUpload" accept=".mid"/>
+        <button id="uploadBtn">Subir MIDI</button>
+        <p id="uploadError"
+           style="color: var(--error); display:none; margin-top:8px;">
+          ❌ Rellena Nota, Modo y selecciona un archivo .mid
+        </p>
       </div>
     </div>
 
-    <p id="loginWarning" style="text-align:center; margin-top: 40px;">🔒 Debes iniciar sesión para acceder a las melodías de la comunidad.</p>
+    <p id="loginWarning"
+       style="text-align:center; margin-top:40px;">
+      🔒 Debes iniciar sesión para acceder a las melodías de la comunidad.
+    </p>
   </div>
 
   <footer>
@@ -51,141 +83,120 @@
   </footer>
 
   <script>
+    // ---- Menú perfil --------------------
     const profileMenu = document.querySelector(".profile-menu");
-    const dropdown = document.querySelector(".dropdown-content");
+    const dropdown    = document.querySelector(".dropdown-content");
     let hideTimeout;
-
     profileMenu.addEventListener("mouseenter", () => {
       clearTimeout(hideTimeout);
       dropdown.classList.add("show-dropdown");
     });
-
     profileMenu.addEventListener("mouseleave", () => {
       hideTimeout = setTimeout(() => {
         dropdown.classList.remove("show-dropdown");
       }, 1000);
     });
-
     document.getElementById("logout").addEventListener("click", () => {
       localStorage.removeItem("token");
       alert("👋 Has cerrado sesión");
       window.location.href = "login.html";
     });
 
+    // ---- Token & usuario ----------------
     function obtenerUsuarioDesdeToken() {
       const token = localStorage.getItem("token");
       if (!token) return null;
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload.sub || null;
-      } catch (e) {
+      } catch {
         return null;
       }
     }
-
     const username = obtenerUsuarioDesdeToken();
     if (username) {
-      document.getElementById("midiSection").style.display = "block";
+      document.getElementById("midiSection").style.display  = "block";
       document.getElementById("loginWarning").style.display = "none";
       cargarMelodias();
     }
 
+    // ---- Carga comunidad -----------------
     async function cargarMelodias() {
       try {
-        const response = await fetch("http://127.0.0.1:8000/melodias");
-        const melodias = await response.json();
+        const res      = await fetch("http://127.0.0.1:8000/melodias");
+        const melodias = await res.json();
         const midiList = document.getElementById("midiList");
         midiList.innerHTML = "";
 
-        melodias.sort((a, b) => a.localeCompare(b));
+        // ordenar por timestamp (parte después de "_") para que los más nuevos queden al final
+        melodias.sort((a, b) => {
+          const tA = Number( a.split("_")[1]?.replace(".mid","") || 0 );
+          const tB = Number( b.split("_")[1]?.replace(".mid","") || 0 );
+          return tA - tB;
+        });
 
-        for (const nombre of melodias) {
+        melodias.forEach((nombre, idx) => {
+          // extraer escala limpia:
+          let clean = nombre.replace('.mid','');
+          let escala;
+          if (clean.includes('_')) {
+            escala = clean.split('_')[0];            // ej. "CMAJOR"
+          } else if (clean.includes(' - ')) {
+            escala = clean.split(' - ')[1];           // ej. "AMINOR"
+          } else {
+            escala = clean;
+          }
+
           const card = document.createElement("div");
           card.className = "midi-card";
           card.innerHTML = `
-            <h4>${nombre.replace(".mid", "")}</h4>
-            <a href="http://127.0.0.1:8000/melodias/${encodeURIComponent(nombre)}" download>⬇ Descargar</a>
-            <div id="valoracion-${nombre}" class="valoracion-block">Cargando valoración...</div>
-          `;
-          midiList.appendChild(card);
-
-          actualizarValoracion(nombre);
-        }
-      } catch (error) {
-        console.error("Error cargando melodías:", error);
-      }
-    }
-
-    async function actualizarValoracion(midiName) {
-      try {
-        const valRes = await fetch(`http://127.0.0.1:8000/valoraciones/${encodeURIComponent(midiName)}`);
-        const data = await valRes.json();
-
-        const contenedor = document.getElementById(`valoracion-${midiName}`);
-        let estrellas = 0;
-        let texto = `<div style="margin-top: 18px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15);">`;
-
-        if (data.valoracion_media !== null) {
-          estrellas = Math.round(data.valoracion_media);
-          texto += `
-            <div style="color: gold; font-size: 18px; margin-bottom: 6px;">
-              ⭐ ${"★".repeat(estrellas)}${"☆".repeat(5 - estrellas)} (${data.cantidad_votos} votos)
+            <h4>MIDI ${idx+1} - ${escala}</h4>
+            <a href="http://127.0.0.1:8000/melodias/${encodeURIComponent(nombre)}" download>
+              ⬇ Descargar
+            </a>
+            <div id="valoracion-${nombre}" class="valoracion-block">
+              Cargando valoración...
             </div>
           `;
-        } else {
-          texto += `<div style="color: gray; font-size: 15px; margin-bottom: 6px;">Sin valoraciones aún. ¡Sé el primero en valorar!</div>`;
-        }
-
-        texto += `
-          <div style="margin-top: 8px; font-size: 22px;">
-            ${[1, 2, 3, 4, 5].map(p =>
-              `<span style="cursor:pointer; color: white;" onclick="valorar('${midiName}', ${p})">★</span>`
-            ).join("")}
-          </div>
-        </div>`;
-
-        contenedor.innerHTML = texto;
-      } catch (err) {
-        console.error("Error al actualizar valoración:", err);
+          midiList.appendChild(card);
+          actualizarValoracion(nombre);
+        });
+      } catch(err) {
+        console.error("Error cargando comunidad:", err);
       }
     }
 
-    async function subirMelodia() {
-      const fileInput = document.getElementById("midiUpload");
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Selecciona un archivo MIDI para subir.");
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Debes iniciar sesión para subir melodías.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-
+    // ---- Valoraciones -------------------
+    async function actualizarValoracion(midiName) {
       try {
-        const response = await fetch("http://127.0.0.1:8000/melodias/upload", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          },
-          body: formData
-        });
+        const resp = await fetch(
+          `http://127.0.0.1:8000/valoraciones/${encodeURIComponent(midiName)}`
+        );
+        const data = await resp.json();
+        const cont = document.getElementById(`valoracion-${midiName}`);
+        let html   = `<div style="margin-top:18px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">`;
 
-        if (response.ok) {
-          alert("✅ Melodía subida correctamente.");
-          fileInput.value = "";
-          cargarMelodias();
+        if (data.valoracion_media !== null) {
+          const stars = Math.round(data.valoracion_media);
+          html += `<div style="color:gold;font-size:18px;margin-bottom:6px;">
+                     ⭐ ${'★'.repeat(stars)}${'☆'.repeat(5-stars)} (${data.cantidad_votos} votos)
+                   </div>`;
         } else {
-          const error = await response.json();
-          alert("❌ Error: " + error.detail);
+          html += `<div style="color:gray;font-size:15px;margin-bottom:6px;">
+                     Sin valoraciones aún. ¡Sé el primero en valorar!
+                   </div>`;
         }
-      } catch (error) {
-        console.error("Error al subir la melodía:", error);
+
+        html += `<div style="margin-top:8px;font-size:22px;">`;
+        [1,2,3,4,5].forEach(p => {
+          html += `<span style="cursor:pointer;color:white;"
+                        onclick="valorar('${midiName}',${p})">★</span>`;
+        });
+        html += `</div></div>`;
+
+        cont.innerHTML = html;
+      } catch(e) {
+        console.error("Error valoración:", e);
       }
     }
 
@@ -195,9 +206,8 @@
         alert("Debes iniciar sesión para valorar.");
         return;
       }
-
       try {
-        const response = await fetch("http://127.0.0.1:8000/valorar", {
+        const resp = await fetch("http://127.0.0.1:8000/valorar", {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -205,18 +215,55 @@
           },
           body: JSON.stringify({ midi_name: midiName, puntuacion })
         });
-
-        const data = await response.json();
-        if (response.ok) {
-          alert(`✅ Valoraste "${midiName}" con ${puntuacion} estrellas`);
-          actualizarValoracion(midiName);
-        } else {
-          alert("❌ Error al valorar: " + data.detail);
-        }
-      } catch (error) {
-        alert("❌ Error al conectar con el servidor.");
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail);
+        alert(`✅ Valoraste "${midiName}" con ${puntuacion} estrellas`);
+        actualizarValoracion(midiName);
+      } catch(err) {
+        alert("❌ Error al valorar: " + err.message);
       }
     }
+
+    // ---- Subida de MIDI -----------------
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const note   = document.getElementById("scaleNote").value.trim().toUpperCase();
+      const mode   = document.getElementById("scaleMode").value.toUpperCase();
+      const fileIn = document.getElementById("midiUpload");
+      const errP   = document.getElementById("uploadError");
+      const token  = localStorage.getItem("token");
+
+      if (!note || !mode || !fileIn.files.length) {
+        errP.style.display = "block";
+        return;
+      }
+      errP.style.display = "none";
+
+      // renombrar con escala y timestamp
+      const rawFile   = fileIn.files[0];
+      const timestamp = Date.now();
+      const newName   = `${note}${mode}_${timestamp}.mid`;
+
+      const formData = new FormData();
+      formData.append("file", rawFile, newName);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/melodias/upload", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "upload failed");
+        }
+        alert("✅ Melodía subida correctamente.");
+        fileIn.value = "";
+        cargarMelodias();
+      } catch(e) {
+        console.error(e);
+        alert("❌ Error al subir la melodía: " + e.message);
+      }
+    });
   </script>
 </body>
 </html>
