@@ -69,7 +69,58 @@
         ]
     },
     "F#MAJOR": {
-        "melodias": []
+        "melodias": [
+            {
+                "note": 75,
+                "duration": 288,
+                "velocity": 100
+            },
+            {
+                "note": 78,
+                "duration": 48,
+                "velocity": 100
+            },
+            {
+                "note": 80,
+                "duration": 48,
+                "velocity": 100
+            },
+            {
+                "note": 75,
+                "duration": 288,
+                "velocity": 100
+            },
+            {
+                "note": 77,
+                "duration": 96,
+                "velocity": 100
+            },
+            {
+                "note": 75,
+                "duration": 288,
+                "velocity": 100
+            },
+            {
+                "note": 78,
+                "duration": 48,
+                "velocity": 100
+            },
+            {
+                "note": 80,
+                "duration": 48,
+                "velocity": 100
+            },
+            {
+                "note": 75,
+                "duration": 288,
+                "velocity": 100
+            },
+            {
+                "note": 77,
+                "duration": 96,
+                "velocity": 100
+            }
+        ]
     },
     "D#MAJOR": {
         "melodias": [
@@ -224,6 +275,41 @@
                 "note": 81,
                 "duration": 288,
                 "velocity": 84
+            },
+            {
+                "note": 79,
+                "duration": 96,
+                "velocity": 96
+            },
+            {
+                "note": 76,
+                "duration": 288,
+                "velocity": 87
+            },
+            {
+                "note": 77,
+                "duration": 24,
+                "velocity": 96
+            },
+            {
+                "note": 79,
+                "duration": 72,
+                "velocity": 92
+            },
+            {
+                "note": 77,
+                "duration": 288,
+                "velocity": 96
+            },
+            {
+                "note": 76,
+                "duration": 96,
+                "velocity": 92
+            },
+            {
+                "note": 74,
+                "duration": 384,
+                "velocity": 100
             }
         ]
     },
@@ -233,6 +319,41 @@
                 "note": 76,
                 "duration": 192,
                 "velocity": 84
+            },
+            {
+                "note": 78,
+                "duration": 192,
+                "velocity": 92
+            },
+            {
+                "note": 80,
+                "duration": 288,
+                "velocity": 87
+            },
+            {
+                "note": 78,
+                "duration": 24,
+                "velocity": 96
+            },
+            {
+                "note": 80,
+                "duration": 72,
+                "velocity": 92
+            },
+            {
+                "note": 76,
+                "duration": 288,
+                "velocity": 96
+            },
+            {
+                "note": 78,
+                "duration": 96,
+                "velocity": 92
+            },
+            {
+                "note": 76,
+                "duration": 384,
+                "velocity": 100
             }
         ]
     },

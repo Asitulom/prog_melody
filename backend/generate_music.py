@@ -16,7 +16,7 @@ BASE_DIR             = os.path.dirname(os.path.abspath(__file__))
 AI_DIR               = os.path.join(BASE_DIR, '..', 'ai')
 
 # Triads & progresiones (idéntico a antes)
-LOWER_BOUND     = 36   # C3
+LOWER_BOUND     = 24   # C3
 UPPER_BOUND     = 84   # C6
 TICKS_PER_BEAT  = 384
 

@@ -36,20 +36,21 @@
   <div id="welcome-toast" class="toast"></div>
 
   <div class="container">
-    <label for="tempo">Tempo:</label>
-    <input type="number" id="tempo" placeholder="Ejemplo: 120" />
+    <!-- Campo Tempo eliminado -->
     <label for="tone">Tono:</label>
     <input type="text" id="tone" placeholder="Ejemplo: C" />
+
     <label for="emotion">Emoción:</label>
     <select id="emotion">
       <option value="happy">Happy 😊</option>
       <option value="sad">Sad 😢</option>
     </select>
+
     <button id="generateMidi">🎵 Generar MIDI</button>
 
     <div id="loadingSpinner"></div>
     <p id="statusMessage">Generando melodía...</p>
-    <p id="errorMessage">❌ Debes ingresar un Tempo y un Tono.</p>
+    <p id="errorMessage">❌ Debes ingresar un Tono.</p>
     <a id="downloadLink">⬇ Descargar MIDI</a>
   </div>
 
@@ -59,8 +60,7 @@
 
   <script>
     async function generateMelody() {
-      const tempo = document.getElementById("tempo").value;
-      const tone = document.getElementById("tone").value;
+      const tone = document.getElementById("tone").value.trim();
       const emotion = document.getElementById("emotion").value;
       const statusMessage = document.getElementById("statusMessage");
       const errorMessage = document.getElementById("errorMessage");
@@ -68,8 +68,8 @@
       const downloadLink = document.getElementById("downloadLink");
       const token = localStorage.getItem("token");
 
-      if (!tempo || !tone) {
-        errorMessage.innerText = "❌ Debes ingresar un Tempo y un Tono.";
+      if (!tone) {
+        errorMessage.innerText = "❌ Debes ingresar un Tono.";
         errorMessage.style.display = "block";
         statusMessage.style.display = "none";
         loadingSpinner.style.display = "none";
@@ -83,6 +83,7 @@
         return;
       }
 
+      // Ocultamos errores y mostramos loading
       errorMessage.style.display = "none";
       statusMessage.style.display = "block";
       statusMessage.innerText = "Generando melodía...";
@@ -98,7 +99,6 @@
             "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
-            tempo: parseInt(tempo),
             tone: tone,
             emotion: emotion
           })
