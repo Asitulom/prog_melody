@@ -781,8 +781,7 @@
         "duration": 48,
         "velocity": 88
       }
-    ],
-    "acordes": []
+    ]
   },
   "D#MINOR": {
     "melodias": [
@@ -1566,8 +1565,7 @@
         "duration": 192,
         "velocity": 73
       }
-    ],
-    "acordes": []
+    ]
   },
   "GMINOR": {
     "melodias": [
@@ -2351,8 +2349,7 @@
         "duration": 96,
         "velocity": 93
       }
-    ],
-    "acordes": []
+    ]
   },
   "EMINOR": {
     "melodias": [
@@ -3016,8 +3013,7 @@
         "duration": 288,
         "velocity": 87
       }
-    ],
-    "acordes": []
+    ]
   },
   "FMINOR": {
     "melodias": [
@@ -3141,8 +3137,7 @@
         "duration": 267,
         "velocity": 96
       }
-    ],
-    "acordes": []
+    ]
   },
   "BMINOR": {
     "melodias": [
@@ -3205,69 +3200,8 @@
         "note": 87,
         "duration": 192,
         "velocity": 84
-      },
-      {
-        "note": 76,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 77,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 78,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 79,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 80,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 81,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 82,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 83,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 84,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 85,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 86,
-        "duration": 2,
-        "velocity": 100
-      },
-      {
-        "note": 87,
-        "duration": 2,
-        "velocity": 100
       }
-    ],
-    "acordes": []
+    ]
   },
   "CMINOR": {
     "melodias": [
@@ -3751,8 +3685,7 @@
         "duration": 192,
         "velocity": 67
       }
-    ],
-    "acordes": []
+    ]
   },
   "C#MINOR": {
     "melodias": [
@@ -4176,8 +4109,7 @@
         "duration": 192,
         "velocity": 86
       }
-    ],
-    "acordes": []
+    ]
   },
   "DMINOR": {
     "melodias": [
@@ -4601,7 +4533,6 @@
         "duration": 96,
         "velocity": 94
       }
-    ],
-    "acordes": []
+    ]
   }
 }
