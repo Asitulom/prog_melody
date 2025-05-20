@@ -29,23 +29,15 @@ cd ai
 python process_midi.py 
 python process_midi_happy.py
 
-
-# → sad_midi_data.json
-
 python augment_transpose.py   
 python augment_transpose_happy.py    
-# → sad_midi_data_augmented.json
 
 # 5. Pre-entrenamiento con tu corpus amplio (Zelda, etc.)
 python train_full_corpus.py   
 
-# → full_melody.h5 + scalers
-
 # 6. Fine-tuning en “sad” + pasos 3 y 4
 python train_melody_classifier.py 
 python train_melody_classifier_happy.py 
-
-# → melody_model.h5
 
 # 7. Levantar el backend
 
