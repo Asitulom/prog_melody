@@ -79,7 +79,7 @@ def train():
     model.load_weights(FULL_WEIGHTS)
 
     print("🚀 Fine-tuning modelo en ‘sad’…")
-    model.fit(X, y, epochs=50, batch_size=32, validation_split=0.2, shuffle=True)
+    model.fit(X, y, epochs=10, batch_size=32, validation_split=0.2, shuffle=True) #epochs=100
     model.save(OUTPUT_MODEL)
     print("✅ Modelo fine-tuneado guardado en", OUTPUT_MODEL)
 

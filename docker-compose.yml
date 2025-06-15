@@ -1,5 +1,9 @@
 #docker-compose.yml
 
+
+
+
+
 version: "3.9"
 
 services:
@@ -20,3 +24,6 @@ services:
     ports:
       - "8001:8001"
     command: python -m http.server 8001
+
+
+

@@ -1,0 +1,435 @@
+
+EJECUTAR EL PROGRAMA EN CMD:
+
+C:\Users\Asier>cd C:\Users\Asier\Documents\PFG\prog_melody
+
+C:\Users\Asier\Documents\PFG\prog_melody>venv\Scripts\activate
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody>pip install -r requirements.txt
+Requirement already satisfied: bcrypt==3.2.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 3)) (3.2.0)
+Requirement already satisfied: fastapi in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 4)) (0.115.11)
+Requirement already satisfied: uvicorn in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 5)) (0.34.0)
+Requirement already satisfied: mido in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 6)) (1.3.3)
+Requirement already satisfied: pandas in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 7)) (2.2.3)
+Requirement already satisfied: numpy in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 8)) (1.26.4)
+Requirement already satisfied: tensorflow==2.15.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 9)) (2.15.0)
+Requirement already satisfied: scikit-learn in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 10)) (1.6.1)
+Requirement already satisfied: pickle-mixin in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 11)) (1.0.2)
+Requirement already satisfied: sqlalchemy in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 14)) (2.0.39)
+Requirement already satisfied: python-multipart in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 15)) (0.0.20)
+Requirement already satisfied: matplotlib in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 16)) (3.10.1)
+Requirement already satisfied: passlib[bcrypt] in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 12)) (1.7.4)
+Requirement already satisfied: python-jose[cryptography] in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from -r requirements.txt (line 13)) (3.4.0)
+Requirement already satisfied: cffi>=1.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from bcrypt==3.2.0->-r requirements.txt (line 3)) (1.17.1)
+Requirement already satisfied: six>=1.4.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from bcrypt==3.2.0->-r requirements.txt (line 3)) (1.17.0)
+Requirement already satisfied: tensorflow-intel==2.15.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow==2.15.0->-r requirements.txt (line 9)) (2.15.0)
+Requirement already satisfied: absl-py>=1.0.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.1.0)
+Requirement already satisfied: astunparse>=1.6.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (1.6.3)
+Requirement already satisfied: flatbuffers>=23.5.26 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (25.2.10)
+Requirement already satisfied: gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.6.0)
+Requirement already satisfied: google-pasta>=0.1.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.2.0)
+Requirement already satisfied: h5py>=2.9.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.13.0)
+Requirement already satisfied: libclang>=13.0.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (18.1.1)
+Requirement already satisfied: ml-dtypes~=0.2.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.2.0)
+Requirement already satisfied: opt-einsum>=2.3.2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.4.0)
+Requirement already satisfied: packaging in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (24.2)
+Requirement already satisfied: protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<5.0.0dev,>=3.20.3 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (4.25.6)
+Requirement already satisfied: setuptools in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (63.2.0)
+Requirement already satisfied: termcolor>=1.1.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.5.0)
+Requirement already satisfied: typing-extensions>=3.6.6 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (4.12.2)
+Requirement already satisfied: wrapt<1.15,>=1.11.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (1.14.1)
+Requirement already satisfied: tensorflow-io-gcs-filesystem>=0.23.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.31.0)
+Requirement already satisfied: grpcio<2.0,>=1.24.3 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (1.70.0)
+Requirement already satisfied: tensorboard<2.16,>=2.15 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.15.2)
+Requirement already satisfied: tensorflow-estimator<2.16,>=2.15.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.15.0)
+Requirement already satisfied: keras<2.16,>=2.15.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.15.0)
+Requirement already satisfied: google-auth<3,>=1.6.3 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.38.0)
+Requirement already satisfied: google-auth-oauthlib<2,>=0.5 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (1.2.1)
+Requirement already satisfied: markdown>=2.6.8 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.7)
+Requirement already satisfied: requests<3,>=2.21.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.32.3)
+Requirement already satisfied: tensorboard-data-server<0.8.0,>=0.7.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.7.2)
+Requirement already satisfied: werkzeug>=1.0.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.1.3)
+Requirement already satisfied: cachetools<6.0,>=2.0.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from google-auth<3,>=1.6.3->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (5.5.2)
+Requirement already satisfied: pyasn1-modules>=0.2.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from google-auth<3,>=1.6.3->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.4.1)
+Requirement already satisfied: rsa<5,>=3.1.4 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from google-auth<3,>=1.6.3->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (4.9)
+Requirement already satisfied: requests-oauthlib>=0.7.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from google-auth-oauthlib<2,>=0.5->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.0.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from requests<3,>=2.21.0->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.4.1)
+Requirement already satisfied: idna<4,>=2.5 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from requests<3,>=2.21.0->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from requests<3,>=2.21.0->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2.3.0)
+Requirement already satisfied: certifi>=2017.4.17 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from requests<3,>=2.21.0->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (2025.1.31)
+Requirement already satisfied: pyasn1>=0.1.3 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from rsa<5,>=3.1.4->google-auth<3,>=1.6.3->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.4.8)
+Requirement already satisfied: starlette<0.47.0,>=0.40.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from fastapi->-r requirements.txt (line 4)) (0.46.1)
+Requirement already satisfied: pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from fastapi->-r requirements.txt (line 4)) (2.10.6)
+Requirement already satisfied: annotated-types>=0.6.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi->-r requirements.txt (line 4)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi->-r requirements.txt (line 4)) (2.27.2)
+Requirement already satisfied: anyio<5,>=3.6.2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from starlette<0.47.0,>=0.40.0->fastapi->-r requirements.txt (line 4)) (4.8.0)
+Requirement already satisfied: exceptiongroup>=1.0.2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from anyio<5,>=3.6.2->starlette<0.47.0,>=0.40.0->fastapi->-r requirements.txt (line 4)) (1.2.2)
+Requirement already satisfied: sniffio>=1.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from anyio<5,>=3.6.2->starlette<0.47.0,>=0.40.0->fastapi->-r requirements.txt (line 4)) (1.3.1)
+Requirement already satisfied: click>=7.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from uvicorn->-r requirements.txt (line 5)) (8.1.8)
+Requirement already satisfied: h11>=0.8 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from uvicorn->-r requirements.txt (line 5)) (0.14.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from pandas->-r requirements.txt (line 7)) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from pandas->-r requirements.txt (line 7)) (2025.1)
+Requirement already satisfied: tzdata>=2022.7 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from pandas->-r requirements.txt (line 7)) (2025.1)
+Requirement already satisfied: scipy>=1.6.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from scikit-learn->-r requirements.txt (line 10)) (1.15.2)
+Requirement already satisfied: joblib>=1.2.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from scikit-learn->-r requirements.txt (line 10)) (1.4.2)
+Requirement already satisfied: threadpoolctl>=3.1.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from scikit-learn->-r requirements.txt (line 10)) (3.5.0)
+Requirement already satisfied: ecdsa!=0.15 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from python-jose[cryptography]->-r requirements.txt (line 13)) (0.19.1)
+Requirement already satisfied: cryptography>=3.4.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from python-jose[cryptography]->-r requirements.txt (line 13)) (44.0.2)
+Requirement already satisfied: greenlet!=0.4.17 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from sqlalchemy->-r requirements.txt (line 14)) (3.1.1)
+Requirement already satisfied: contourpy>=1.0.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (1.3.2)
+Requirement already satisfied: cycler>=0.10 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (4.57.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (1.4.8)
+Requirement already satisfied: pillow>=8 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (11.2.1)
+Requirement already satisfied: pyparsing>=2.3.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from matplotlib->-r requirements.txt (line 16)) (3.2.3)
+Requirement already satisfied: wheel<1.0,>=0.23.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from astunparse>=1.6.0->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (0.45.1)
+Requirement already satisfied: pycparser in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from cffi>=1.1->bcrypt==3.2.0->-r requirements.txt (line 3)) (2.22)
+Requirement already satisfied: colorama in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from click>=7.0->uvicorn->-r requirements.txt (line 5)) (0.4.6)
+Requirement already satisfied: oauthlib>=3.0.0 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from requests-oauthlib>=0.7.0->google-auth-oauthlib<2,>=0.5->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.2.2)
+Requirement already satisfied: MarkupSafe>=2.1.1 in c:\users\asier\documents\pfg\prog_melody\venv\lib\site-packages (from werkzeug>=1.0.1->tensorboard<2.16,>=2.15->tensorflow-intel==2.15.0->tensorflow==2.15.0->-r requirements.txt (line 9)) (3.0.2)
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody>cd ai
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python process_midi.py
+📂 Ruta del dataset: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad
+Buscando archivos en: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 1 - AMINOR.mid
+Escala detectada: AMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 10 - F#MINOR.mid
+Escala detectada: F#MINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 2 - D#MINOR.mid
+Escala detectada: D#MINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 3 - GMINOR.mid
+Escala detectada: GMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 4 - EMINOR.mid
+Escala detectada: EMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 5 - FMINOR.mid
+Escala detectada: FMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 6 - BMINOR.mid
+Escala detectada: BMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 7 - CMINOR.mid
+Escala detectada: CMINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 8 - C#MINOR.mid
+Escala detectada: C#MINOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\sad\melody\MIDI 9 - DMINOR.mid
+Escala detectada: DMINOR - Melodía
+✅ Datos procesados y guardados en sad_midi_data.json
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python process_midi_happy.py
+📂 Ruta del dataset: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy
+Buscando archivos en: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 1 - AMAJOR.mid
+Escala detectada: AMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 10 - F#MAJOR.mid
+Escala detectada: F#MAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 2 - D#MAJOR.mid
+Escala detectada: D#MAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 3 - GMAJOR.mid
+Escala detectada: GMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 4 - EMAJOR.mid
+Escala detectada: EMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 5 - FMAJOR.mid
+Escala detectada: FMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 6 - BMAJOR.mid
+Escala detectada: BMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 7 - CMAJOR.mid
+Escala detectada: CMAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 8 - C#MAJOR.mid
+Escala detectada: C#MAJOR - Melodía
+Procesando archivo: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\midi\happy\melody\MIDI 9 - DMAJOR.mid
+Escala detectada: DMAJOR - Melodía
+✅ Datos procesados y guardados en happy_midi_data.json
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python augment_transpose.py
+✅ Augmented data saved to C:\Users\Asier\Documents\PFG\prog_melody\ai\sad_midi_data_augmented.json
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python augment_transpose_happy.py
+✅ Augmented data saved to C:\Users\Asier\Documents\PFG\prog_melody\ai\happy_midi_data_augmented.json
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python train_full_corpus.py
+2025-05-21 20:47:54.097528: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+📂 Leyendo corpus en: C:\Users\Asier\Documents\PFG\prog_melody\ai\datasets\corpus
+⚠️ Coldplay_-_Yellow_(Adrian_Lee_Piano_Version).mid: no es MIDI válido o error → MThd not found. Probably not a MIDI file. Se ignora.
+⚠️ Rocket Man 41k.mid: no es MIDI válido o error → MThd not found. Probably not a MIDI file. Se ignora.
+🎵 Eventos melódicos extraídos: 199286
+🔢 Secuencias totales: 199270 → cada una de 16×3
+🔍 Usando muestra de 20000 secuencias para entrenamiento rápido
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\layers\rnn\lstm.py:148: The name tf.executing_eagerly_outside_functions is deprecated. Please use tf.compat.v1.executing_eagerly_outside_functions instead.
+
+2025-05-21 20:48:24.217080: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE SSE2 SSE3 SSE4.1 SSE4.2 AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+🚀 Entrenando modelo genérico sobre muestra…
+Epoch 1/3
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\utils\tf_utils.py:492: The name tf.ragged.RaggedTensorValue is deprecated. Please use tf.compat.v1.ragged.RaggedTensorValue instead.
+
+282/282 [==============================] - 23s 68ms/step - loss: 0.0069 - val_loss: 0.0031
+Epoch 2/3
+282/282 [==============================] - 18s 64ms/step - loss: 0.0034 - val_loss: 0.0029
+Epoch 3/3
+282/282 [==============================] - 19s 66ms/step - loss: 0.0031 - val_loss: 0.0027
+C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\engine\training.py:3103: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')`.
+  saving_api.save_model(
+✅ Pre-entrenamiento (sample) completado.
+   Pesos → C:\Users\Asier\Documents\PFG\prog_melody\ai\full_melody.h5
+   Scalers → C:\Users\Asier\Documents\PFG\prog_melody\ai\full_note_scl.pkl C:\Users\Asier\Documents\PFG\prog_melody\ai\full_dur_scl.pkl C:\Users\Asier\Documents\PFG\prog_melody\ai\full_vel_scl.pkl
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python train_melody_classifier.py
+2025-05-21 20:49:29.487707: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+🎯 Cargando 900 eventos de sad_midi_data_augmented.json
+🔢 Fine-tune secuencias: (884, 16, 3) (884, 3)
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\layers\rnn\lstm.py:148: The name tf.executing_eagerly_outside_functions is deprecated. Please use tf.compat.v1.executing_eagerly_outside_functions instead.
+
+2025-05-21 20:49:35.328876: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE SSE2 SSE3 SSE4.1 SSE4.2 AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+🔄 Cargando pesos genéricos…
+🚀 Fine-tuning modelo en ‘sad’…
+Epoch 1/50
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\utils\tf_utils.py:492: The name tf.ragged.RaggedTensorValue is deprecated. Please use tf.compat.v1.ragged.RaggedTensorValue instead.
+
+23/23 [==============================] - 5s 70ms/step - loss: 0.0145 - val_loss: 0.0173
+Epoch 2/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0116 - val_loss: 0.0141
+Epoch 3/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0101 - val_loss: 0.0114
+Epoch 4/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0095 - val_loss: 0.0112
+Epoch 5/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0095 - val_loss: 0.0137
+Epoch 6/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0089 - val_loss: 0.0108
+Epoch 7/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0084 - val_loss: 0.0093
+Epoch 8/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0084 - val_loss: 0.0105
+Epoch 9/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0082 - val_loss: 0.0104
+Epoch 10/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0077 - val_loss: 0.0092
+Epoch 11/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0073 - val_loss: 0.0089
+Epoch 12/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0071 - val_loss: 0.0111
+Epoch 13/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0069 - val_loss: 0.0078
+Epoch 14/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0068 - val_loss: 0.0077
+Epoch 15/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0065 - val_loss: 0.0074
+Epoch 16/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0064 - val_loss: 0.0075
+Epoch 17/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0067 - val_loss: 0.0079
+Epoch 18/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0065 - val_loss: 0.0073
+Epoch 19/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0062 - val_loss: 0.0086
+Epoch 20/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0064 - val_loss: 0.0076
+Epoch 21/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0064 - val_loss: 0.0067
+Epoch 22/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0062 - val_loss: 0.0066
+Epoch 23/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0061 - val_loss: 0.0070
+Epoch 24/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0062 - val_loss: 0.0066
+Epoch 25/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0060 - val_loss: 0.0064
+Epoch 26/50
+23/23 [==============================] - 1s 49ms/step - loss: 0.0057 - val_loss: 0.0074
+Epoch 27/50
+23/23 [==============================] - 1s 52ms/step - loss: 0.0062 - val_loss: 0.0062
+Epoch 28/50
+23/23 [==============================] - 1s 52ms/step - loss: 0.0060 - val_loss: 0.0083
+Epoch 29/50
+23/23 [==============================] - 1s 52ms/step - loss: 0.0057 - val_loss: 0.0065
+Epoch 30/50
+23/23 [==============================] - 1s 53ms/step - loss: 0.0054 - val_loss: 0.0061
+Epoch 31/50
+23/23 [==============================] - 1s 46ms/step - loss: 0.0057 - val_loss: 0.0064
+Epoch 32/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0057 - val_loss: 0.0069
+Epoch 33/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0066 - val_loss: 0.0069
+Epoch 34/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0060 - val_loss: 0.0060
+Epoch 35/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0058 - val_loss: 0.0060
+Epoch 36/50
+23/23 [==============================] - 1s 39ms/step - loss: 0.0062 - val_loss: 0.0072
+Epoch 37/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0058 - val_loss: 0.0068
+Epoch 38/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0058 - val_loss: 0.0063
+Epoch 39/50
+23/23 [==============================] - 1s 42ms/step - loss: 0.0058 - val_loss: 0.0069
+Epoch 40/50
+23/23 [==============================] - 1s 42ms/step - loss: 0.0057 - val_loss: 0.0070
+Epoch 41/50
+23/23 [==============================] - 1s 42ms/step - loss: 0.0053 - val_loss: 0.0057
+Epoch 42/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0052 - val_loss: 0.0064
+Epoch 43/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0055 - val_loss: 0.0057
+Epoch 44/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0055 - val_loss: 0.0063
+Epoch 45/50
+23/23 [==============================] - 1s 42ms/step - loss: 0.0052 - val_loss: 0.0058
+Epoch 46/50
+23/23 [==============================] - 1s 44ms/step - loss: 0.0051 - val_loss: 0.0060
+Epoch 47/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0050 - val_loss: 0.0058
+Epoch 48/50
+23/23 [==============================] - 1s 41ms/step - loss: 0.0051 - val_loss: 0.0057
+Epoch 49/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0052 - val_loss: 0.0064
+Epoch 50/50
+23/23 [==============================] - 1s 40ms/step - loss: 0.0053 - val_loss: 0.0059
+C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\engine\training.py:3103: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')`.
+  saving_api.save_model(
+✅ Modelo fine-tuneado guardado en C:\Users\Asier\Documents\PFG\prog_melody\ai\melody_model.h5
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>python train_melody_classifier_happy.py
+2025-05-21 20:50:31.050875: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+🎯 Cargando 1056 eventos de happy_midi_data_augmented.json
+🔢 Fine-tune secuencias: (1040, 16, 3) -> (1040, 3)
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\layers\rnn\lstm.py:148: The name tf.executing_eagerly_outside_functions is deprecated. Please use tf.compat.v1.executing_eagerly_outside_functions instead.
+
+2025-05-21 20:50:37.480376: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE SSE2 SSE3 SSE4.1 SSE4.2 AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+🔄 Cargando pesos genéricos…
+🚀 Fine-tuning modelo en ‘happy’…
+Epoch 1/50
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\utils\tf_utils.py:492: The name tf.ragged.RaggedTensorValue is deprecated. Please use tf.compat.v1.ragged.RaggedTensorValue instead.
+
+26/26 [==============================] - 4s 64ms/step - loss: 0.0185 - val_loss: 0.0163
+Epoch 2/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0135 - val_loss: 0.0120
+Epoch 3/50
+26/26 [==============================] - 1s 43ms/step - loss: 0.0120 - val_loss: 0.0110
+Epoch 4/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0111 - val_loss: 0.0110
+Epoch 5/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0107 - val_loss: 0.0106
+Epoch 6/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0102 - val_loss: 0.0103
+Epoch 7/50
+26/26 [==============================] - 1s 37ms/step - loss: 0.0099 - val_loss: 0.0109
+Epoch 8/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0096 - val_loss: 0.0088
+Epoch 9/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0086 - val_loss: 0.0093
+Epoch 10/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0087 - val_loss: 0.0087
+Epoch 11/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0084 - val_loss: 0.0128
+Epoch 12/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0082 - val_loss: 0.0103
+Epoch 13/50
+26/26 [==============================] - 1s 42ms/step - loss: 0.0084 - val_loss: 0.0087
+Epoch 14/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0077 - val_loss: 0.0078
+Epoch 15/50
+26/26 [==============================] - 1s 42ms/step - loss: 0.0075 - val_loss: 0.0076
+Epoch 16/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0070 - val_loss: 0.0076
+Epoch 17/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0070 - val_loss: 0.0071
+Epoch 18/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0071 - val_loss: 0.0074
+Epoch 19/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0067 - val_loss: 0.0068
+Epoch 20/50
+26/26 [==============================] - 1s 38ms/step - loss: 0.0064 - val_loss: 0.0076
+Epoch 21/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0070 - val_loss: 0.0071
+Epoch 22/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0066 - val_loss: 0.0069
+Epoch 23/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0064 - val_loss: 0.0071
+Epoch 24/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0067 - val_loss: 0.0067
+Epoch 25/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0062 - val_loss: 0.0066
+Epoch 26/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0063 - val_loss: 0.0069
+Epoch 27/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0060 - val_loss: 0.0067
+Epoch 28/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0061 - val_loss: 0.0068
+Epoch 29/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0058 - val_loss: 0.0074
+Epoch 30/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0060 - val_loss: 0.0068
+Epoch 31/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0059 - val_loss: 0.0073
+Epoch 32/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0056 - val_loss: 0.0070
+Epoch 33/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0056 - val_loss: 0.0076
+Epoch 34/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0056 - val_loss: 0.0075
+Epoch 35/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0056 - val_loss: 0.0075
+Epoch 36/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0062 - val_loss: 0.0065
+Epoch 37/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0055 - val_loss: 0.0074
+Epoch 38/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0053 - val_loss: 0.0062
+Epoch 39/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0052 - val_loss: 0.0066
+Epoch 40/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0051 - val_loss: 0.0068
+Epoch 41/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0051 - val_loss: 0.0061
+Epoch 42/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0048 - val_loss: 0.0063
+Epoch 43/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0048 - val_loss: 0.0071
+Epoch 44/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0046 - val_loss: 0.0063
+Epoch 45/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0044 - val_loss: 0.0060
+Epoch 46/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0045 - val_loss: 0.0066
+Epoch 47/50
+26/26 [==============================] - 1s 39ms/step - loss: 0.0048 - val_loss: 0.0073
+Epoch 48/50
+26/26 [==============================] - 1s 41ms/step - loss: 0.0048 - val_loss: 0.0077
+Epoch 49/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0054 - val_loss: 0.0075
+Epoch 50/50
+26/26 [==============================] - 1s 40ms/step - loss: 0.0048 - val_loss: 0.0065
+C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\engine\training.py:3103: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')`.
+  saving_api.save_model(
+✅ Modelo fine-tuneado guardado en C:\Users\Asier\Documents\PFG\prog_melody\ai\melody_model_happy.h5
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody\ai>cd C:\Users\Asier\Documents\PFG\prog_melody
+
+(venv) C:\Users\Asier\Documents\PFG\prog_melody>uvicorn backend.app:app --reload
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Asier\\Documents\\PFG\\prog_melody']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [1956] using StatReload
+2025-05-21 20:53:23.563367: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:From C:\Users\Asier\Documents\PFG\prog_melody\venv\lib\site-packages\keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+INFO:     Started server process [19964]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+
+
+C:\Users\Asier>cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
+
+C:\Users\Asier\Documents\PFG\prog_melody\frontend>python -m http.server 8001
+Serving HTTP on :: port 8001 (http://[::]:8001/) ...
+
+
+

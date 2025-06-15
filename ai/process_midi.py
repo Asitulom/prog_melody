@@ -5,7 +5,7 @@ import os
 import json
 from collections import defaultdict
 
-# Definición de escalas (solo menores por ahora)
+# Definición de escalas 
 SCALES = {
     "AMINOR": ["A", "B", "C", "D", "E", "F", "G"],
     "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"],
@@ -20,7 +20,7 @@ SCALES = {
     "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
     "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"]
 }
-
+    
 # Función para extraer escala del nombre del archivo
 def get_scale_from_filename(filename):
     parts = filename.split(" - ")
@@ -41,12 +41,10 @@ def process_midi_file(midi_path):
             current_time += msg.time
 
             if msg.type == 'note_on' and msg.velocity > 0:
-                # iniciamos una nota
                 active_note = (msg.note, msg.velocity, current_time)
 
             elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
                 if active_note and active_note[0] == msg.note:
-                    # calculamos duración
                     note, velocity, start_time = active_note
                     duration = max(1, current_time - start_time)
                     melody.append({

@@ -45,12 +45,17 @@ durs  = np.array([m["duration"] for m in all_mels]).reshape(-1,1).astype(float)
 vels  = np.array([m["velocity"] for m in all_mels]).reshape(-1,1).astype(float)
 
 # 3) Escalar cada dimensión a [0,1]
+
 note_scl = MinMaxScaler().fit(notes)
 dur_scl  = MinMaxScaler().fit(durs)
 vel_scl  = MinMaxScaler().fit(vels)
+
+
 n_s = note_scl.transform(notes)
 d_s = dur_scl .transform(durs)
 v_s = vel_scl .transform(vels)
+
+
 
 # 4) Crear secuencias de largo=16
 SEQ_LEN = 16
@@ -72,8 +77,10 @@ X = np.array(X, dtype=np.float32)
 y = np.array(y, dtype=np.float32)
 print(f"🔢 Secuencias totales: {X.shape[0]} → cada una de {SEQ_LEN}×3")
 
+
+
 # ——— SAMPLE RÁPIDO PARA TEST ———
-SAMPLE_SIZE = 20000 #100000
+SAMPLE_SIZE = 1000 #20000 
 if X.shape[0] > SAMPLE_SIZE:
     idx = np.random.choice(X.shape[0], SAMPLE_SIZE, replace=False)
     X = X[idx]
@@ -82,6 +89,7 @@ if X.shape[0] > SAMPLE_SIZE:
 # ————————————————
 
 # 5) Definir modelo LSTM genérico
+
 def build_model(input_shape):
     m = Sequential([
         LSTM(256, input_shape=input_shape, return_sequences=True),
@@ -91,7 +99,7 @@ def build_model(input_shape):
         Dense(128, activation="relu"),
         Dense(3,   activation="linear")
     ])
-    m.compile(optimizer=Adam(1e-3), loss="mse")
+    m.compile(optimizer=Adam(0.001), loss="mse")
     return m
 
 # 6) Entrenar y guardar
@@ -106,7 +114,7 @@ early = EarlyStopping(
 
 model.fit(
     X, y,
-    epochs=3,             #50
+    epochs=5,             
     batch_size=64,
     validation_split=0.1,
     shuffle=True,
@@ -114,6 +122,8 @@ model.fit(
 )
 
 # Guardar pesos y escaladores
+
+
 model.save(FULL_WEIGHTS)
 with open(NOTE_SCL, "wb") as f: pickle.dump(note_scl, f)
 with open(DUR_SCL,  "wb") as f: pickle.dump(dur_scl,  f)

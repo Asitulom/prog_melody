@@ -93,7 +93,7 @@ def train():
     print("🚀 Fine-tuning modelo en ‘happy’…")
     model.fit(
         X, y,
-        epochs=50,
+        epochs=10, #epochs=100
         batch_size=32,
         validation_split=0.2,
         shuffle=True

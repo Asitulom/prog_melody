@@ -1,0 +1,2624 @@
+CODIGO ENTERO:
+
+# ai/augment_transpose_happy.py
+import json, os
+
+# Cargamos el JSON de HAPPY MAJOR generado con process_midi.py
+IN_PATH  = os.path.join(os.path.dirname(__file__), "happy_midi_data.json")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "happy_midi_data_augmented.json")
+
+with open(IN_PATH, "r") as f:
+    raw = json.load(f)
+
+augmented = {}
+
+# Para cada escala y cada melodía, generamos 12 transposiciones
+for scale, block in raw.items():
+    for note in block.get("melodias", []):
+        orig = note["note"]
+        for shift in range(12):
+            augmented.setdefault(scale, {"melodias": []})
+            augmented[scale]["melodias"].append({
+                "note":     (orig + shift) % 128,
+                "duration": note["duration"],
+                "velocity": note["velocity"]
+            })
+
+# Volcamos el JSON aumentado
+with open(OUT_PATH, "w") as f:
+    json.dump(augmented, f, indent=2)
+
+print(f"✅ Augmented data saved to {OUT_PATH}")
+
+# ai/augment_transpose.py
+import json, os
+
+# Cargamos el JSON que generaste con process_midi.py
+IN_PATH  = os.path.join(os.path.dirname(__file__), "sad_midi_data.json")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "sad_midi_data_augmented.json")
+
+with open(IN_PATH, "r") as f:
+    raw = json.load(f)
+
+augmented = {}
+
+# Para cada escala y cada melodía, generamos 12 transposiciones
+for scale, block in raw.items():
+    for note in block.get("melodias", []):
+        orig = note["note"]
+        for shift in range(12):
+            augmented.setdefault(scale, {"melodias": []})
+            augmented[scale]["melodias"].append({
+                "note":     (orig + shift) % 128,
+                "duration": note["duration"],
+                "velocity": note["velocity"]
+            })
+
+# Volcamos el JSON aumentado
+with open(OUT_PATH, "w") as f:
+    json.dump(augmented, f, indent=2)
+
+print(f"✅ Augmented data saved to {OUT_PATH}")
+
+# process_midi_happy.py
+
+import mido
+import os
+import json
+from collections import defaultdict
+
+# Definición de escalas (solo mayores por ahora)
+SCALES = {
+    "AMAJOR":  ["A",  "B",  "C#", "D",  "E",  "F#", "G#"],
+    "A#MAJOR": ["A#", "C",  "D",  "D#", "F",  "G",  "A"],
+    "BMAJOR":  ["B",  "C#", "D#", "E",  "F#", "G#", "A#"],
+    "CMAJOR":  ["C",  "D",  "E",  "F",  "G",  "A",  "B"],
+    "C#MAJOR": ["C#", "D#", "F",  "F#", "G#", "A#", "C"],
+    "DMAJOR":  ["D",  "E",  "F#", "G",  "A",  "B",  "C#"],
+    "D#MAJOR": ["D#", "F",  "G",  "G#", "A#", "C",  "D"],
+    "EMAJOR":  ["E",  "F#", "G#", "A",  "B",  "C#", "D#"],
+    "FMAJOR":  ["F",  "G",  "A",  "A#", "C",  "D",  "E"],
+    "F#MAJOR": ["F#", "G#", "A#", "B",  "C#", "D#", "F"],
+    "GMAJOR":  ["G",  "A",  "B",  "C",  "D",  "E",  "F#"],
+    "G#MAJOR": ["G#", "A#", "C",  "C#", "D#", "F",  "G"]
+}
+
+# Función para extraer escala del nombre del archivo
+def get_scale_from_filename(filename):
+    parts = filename.split(" - ")
+    if len(parts) > 1:
+        scale = parts[1].replace(".mid", "").strip()
+        return scale.upper()
+    return None
+
+# Función para procesar un archivo MIDI (solo melodías)
+def process_midi_file(midi_path):
+    mid = mido.MidiFile(midi_path)
+    melody = []
+    current_time = 0
+    active_note = None  # tuple (note, velocity, start_time)
+
+    for track in mid.tracks:
+        for msg in track:
+            current_time += msg.time
+
+            if msg.type == 'note_on' and msg.velocity > 0:
+                # iniciamos una nota
+                active_note = (msg.note, msg.velocity, current_time)
+
+            elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
+                if active_note and active_note[0] == msg.note:
+                    note, velocity, start_time = active_note
+                    duration = max(1, current_time - start_time)
+                    melody.append({
+                        "note": note,
+                        "duration": duration,
+                        "velocity": velocity
+                    })
+                active_note = None
+
+    return melody
+
+# Función para procesar toda la carpeta de melodías
+def process_midi_folder(folder_path, output_json="midi_data.json"):
+    data = defaultdict(lambda: {"melodias": []})
+    subpath = os.path.join(folder_path, "melody")
+
+    print(f"Buscando archivos en: {subpath}")
+    if not os.path.exists(subpath):
+        print(f"❌ No existe la carpeta: {subpath}")
+        return
+
+    for file in os.listdir(subpath):
+        if file.endswith(".mid"):
+            midi_path = os.path.join(subpath, file)
+            print(f"Procesando archivo: {midi_path}")
+            scale = get_scale_from_filename(file)
+            if scale and scale in SCALES:
+                print(f"Escala detectada: {scale} - Melodía")
+                processed_data = process_midi_file(midi_path)
+                data[scale]["melodias"].extend(processed_data)
+            else:
+                print(f"⚠️ Escala no reconocida o archivo mal nombrado: {file}")
+
+    with open(output_json, "w") as f:
+        json.dump(data, f, indent=4)
+
+    print(f"✅ Datos procesados y guardados en {output_json}")
+
+if __name__ == "__main__":
+    BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
+    midi_folder = os.path.join(BASE_DIR, "datasets", "midi", "happy")
+
+    print(f"📂 Ruta del dataset: {midi_folder}")
+    process_midi_folder(midi_folder, "happy_midi_data.json")
+
+#process_midi.py
+
+import mido
+import os
+import json
+from collections import defaultdict
+
+# Definición de escalas (solo menores por ahora)
+SCALES = {
+    "AMINOR": ["A", "B", "C", "D", "E", "F", "G"],
+    "A#MINOR": ["A#", "C", "C#", "D#", "F", "F#", "G#"],
+    "BMINOR": ["B", "C#", "D", "E", "F#", "G", "A"],
+    "CMINOR": ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+    "C#MINOR": ["C#", "D#", "E", "F#", "G#", "A", "B"],
+    "DMINOR": ["D", "E", "F", "G", "A", "Bb", "C"],
+    "D#MINOR": ["D#", "F", "F#", "G#", "A#", "B", "C#"],
+    "EMINOR": ["E", "F#", "G", "A", "B", "C", "D"],
+    "FMINOR": ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+    "F#MINOR": ["F#", "G#", "A", "B", "C#", "D", "E"],
+    "GMINOR": ["G", "A", "Bb", "C", "D", "Eb", "F"],
+    "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E", "F#"]
+}
+
+# Función para extraer escala del nombre del archivo
+def get_scale_from_filename(filename):
+    parts = filename.split(" - ")
+    if len(parts) > 1:
+        scale = parts[1].replace(".mid", "").strip()
+        return scale.upper()
+    return None
+
+# Función para procesar un archivo MIDI (solo melodías)
+def process_midi_file(midi_path):
+    mid = mido.MidiFile(midi_path)
+    melody = []
+    current_time = 0
+    active_note = None  # tuple (note, velocity, start_time)
+
+    for track in mid.tracks:
+        for msg in track:
+            current_time += msg.time
+
+            if msg.type == 'note_on' and msg.velocity > 0:
+                # iniciamos una nota
+                active_note = (msg.note, msg.velocity, current_time)
+
+            elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
+                if active_note and active_note[0] == msg.note:
+                    # calculamos duración
+                    note, velocity, start_time = active_note
+                    duration = max(1, current_time - start_time)
+                    melody.append({
+                        "note": note,
+                        "duration": duration,
+                        "velocity": velocity
+                    })
+                active_note = None
+
+    return melody
+
+# Función para procesar toda la carpeta de melodías
+def process_midi_folder(folder_path, output_json="midi_data.json"):
+    data = defaultdict(lambda: {"melodias": []})
+    subpath = os.path.join(folder_path, "melody")
+
+    print(f"Buscando archivos en: {subpath}")
+    if not os.path.exists(subpath):
+        print(f"❌ No existe la carpeta: {subpath}")
+        return
+
+    for file in os.listdir(subpath):
+        if file.endswith(".mid"):
+            midi_path = os.path.join(subpath, file)
+            print(f"Procesando archivo: {midi_path}")
+            scale = get_scale_from_filename(file)
+            if scale and scale in SCALES:
+                print(f"Escala detectada: {scale} - Melodía")
+                processed_data = process_midi_file(midi_path)
+                data[scale]["melodias"].extend(processed_data)
+            else:
+                print(f"⚠️ Escala no reconocida o archivo mal nombrado: {file}")
+
+    with open(output_json, "w") as f:
+        json.dump(data, f, indent=4)
+
+    print(f"✅ Datos procesados y guardados en {output_json}")
+
+if __name__ == "__main__":
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    midi_folder = os.path.join(BASE_DIR, "datasets", "midi", "sad")
+
+    print(f"📂 Ruta del dataset: {midi_folder}")
+    process_midi_folder(midi_folder, "sad_midi_data.json")
+
+
+scale_degrees.json
+
+{
+  "AMINOR":  ["A", "B", "C",  "D", "E", "F",  "G"],
+  "A#MINOR": ["A#", "C", "C#","D#", "F", "F#", "G#"],
+  "BMINOR":  ["B", "C#", "D", "E",  "F#", "G",  "A"],
+  "CMINOR":  ["C", "D", "Eb", "F",  "G", "Ab", "Bb"],
+  "C#MINOR": ["C#", "D#", "E", "F#", "G#", "A",  "B"],
+  "DMINOR":  ["D", "E", "F",  "G",  "A",  "Bb", "C"],
+  "D#MINOR": ["D#", "F", "F#","G#", "A#", "B",  "C#"],
+  "EMINOR":  ["E", "F#", "G", "A",  "B",  "C",  "D"],
+  "FMINOR":  ["F", "G", "Ab", "Bb", "C",  "Db", "Eb"],
+  "F#MINOR": ["F#", "G#", "A", "B",  "C#", "D",  "E"],
+  "GMINOR":  ["G", "A", "Bb", "C",  "D",  "Eb", "F"],
+  "G#MINOR": ["G#", "A#", "B", "C#", "D#", "E",  "F#"],
+
+  "AMAJOR":  ["A", "B", "C#", "D",  "E", "F#", "G#"],
+  "A#MAJOR": ["A#", "C", "D",  "D#", "F", "G",  "A"],
+  "BMAJOR":  ["B", "C#", "D#", "E",  "F#", "G#", "A#"],
+  "CMAJOR":  ["C", "D",  "E",  "F",  "G",  "A",  "B"],
+  "C#MAJOR": ["C#", "D#", "E#", "F#", "G#", "A#", "B#"],
+  "DMAJOR":  ["D", "E",  "F#", "G",  "A",  "B",  "C#"],
+  "D#MAJOR": ["D#", "F",  "G",  "G#", "A#", "C",  "D"],
+  "EMAJOR":  ["E", "F#", "G#", "A",  "B",  "C#", "D#"],
+  "FMAJOR":  ["F", "G",  "A",  "Bb", "C",  "D",  "E"],
+  "F#MAJOR": ["F#", "G#", "A#", "B",  "C#", "D#", "E#"],
+  "GMAJOR":  ["G", "A",  "B",  "C",  "D",  "E",  "F#"],
+  "G#MAJOR": ["G#", "A#", "B#", "C#", "D#", "E#", "F##"]
+}
+
+#train_chord_model
+
+import json
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input, Concatenate
+from tensorflow.keras.optimizers import Adam
+from sklearn.preprocessing import MinMaxScaler
+import pickle
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Paths
+JSON_PATH = os.path.join(BASE_DIR, "sad_midi_data.json")
+CHORD_MODEL_PATH = os.path.join(BASE_DIR, "chord_model.h5")
+
+def load_chord_data():
+    with open(JSON_PATH, "r") as file:
+        data = json.load(file)
+
+    chords = []
+
+    for scale, content in data.items():
+        for chord in content['acordes']:
+            chords.append({
+                "notes": chord["notes"],
+                "duration": chord["duration"],
+                "velocity": chord["velocity"],
+                "scale": scale
+            })
+
+    print(f"Total de acordes cargados: {len(chords)}")
+    return chords
+
+
+def preprocess_chord_data(chords):
+    X, y = [], []
+    sequence_length = 4
+
+    for i in range(len(chords) - sequence_length):
+        input_sequence = chords[i:i + sequence_length]
+        output_chord = chords[i + sequence_length]
+
+        # Convertir los acordes a un array de características
+        input_features = []
+        for chord in input_sequence:
+            # Asegurar que cada acorde tenga 4 notas
+            notes = chord["notes"] + [0] * (4 - len(chord["notes"]))  # Padding
+            input_features.append(notes + [chord["duration"], chord["velocity"]])
+
+        # Convertir el acorde objetivo a la misma estructura
+        output_notes = output_chord["notes"] + [0] * (4 - len(output_chord["notes"]))
+
+        X.append(input_features)
+        y.append(output_notes)
+
+    X = np.array(X)
+    y = np.array(y)
+
+    print(f"X shape: {X.shape}")
+    print(f"y shape: {y.shape}")
+
+    return X, y
+
+
+def build_chord_model(input_shape):
+    model = Sequential([
+        LSTM(128, input_shape=input_shape, return_sequences=True),
+        Dropout(0.2),
+        LSTM(128),
+        Dropout(0.2),
+        Dense(64, activation='relu'),
+        Dense(4, activation='linear')  # 4 notas en el acorde
+    ])
+    model.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
+    return model
+
+
+def train_chord_model():
+    chords = load_chord_data()
+    X, y = preprocess_chord_data(chords)
+
+    if X.shape[0] == 0:
+        print("⚠️ No hay datos suficientes para entrenar el modelo de acordes.")
+        return
+
+    model = build_chord_model((X.shape[1], X.shape[2]))
+    model.fit(X, y, epochs=100, batch_size=32, validation_split=0.2)
+
+    model.save(CHORD_MODEL_PATH)
+    print(f"✅ Modelo de acordes guardado en {CHORD_MODEL_PATH}")
+
+
+if __name__ == "__main__":
+    train_chord_model()
+
+
+# ai/train_full_corpus.py
+
+import os
+import pickle
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from tensorflow.keras.optimizers import Adam
+from sklearn.preprocessing import MinMaxScaler
+from process_midi import process_midi_file  # función de extracción de melodías
+from tensorflow.keras.callbacks import EarlyStopping
+
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+CORPUS_DIR  = os.path.join(BASE_DIR, "datasets", "corpus")
+FULL_WEIGHTS= os.path.join(BASE_DIR, "full_melody.h5")
+NOTE_SCL    = os.path.join(BASE_DIR, "full_note_scl.pkl")
+DUR_SCL     = os.path.join(BASE_DIR, "full_dur_scl.pkl")
+VEL_SCL     = os.path.join(BASE_DIR, "full_vel_scl.pkl")
+
+# 1) Extraer melodías, saltando ficheros corruptos
+print("📂 Leyendo corpus en:", CORPUS_DIR)
+all_mels = []
+for fn in os.listdir(CORPUS_DIR):
+    if not fn.lower().endswith(".mid"):
+        continue
+    path = os.path.join(CORPUS_DIR, fn)
+    try:
+        mels = process_midi_file(path)
+        if not mels:
+            print(f"⚠️ {fn}: no extrajo notas (vacío), se ignora.")
+        else:
+            all_mels.extend(mels)
+    except Exception as e:
+        print(f"⚠️ {fn}: no es MIDI válido o error → {e}. Se ignora.")
+
+if not all_mels:
+    raise RuntimeError("❌ No se extrajo ninguna melodía válida. Revisa tu corpus.")
+
+print(f"🎵 Eventos melódicos extraídos: {len(all_mels)}")
+
+# 2) Construir arrays de note/duration/velocity
+notes = np.array([m["note"]     for m in all_mels]).reshape(-1,1).astype(float)
+durs  = np.array([m["duration"] for m in all_mels]).reshape(-1,1).astype(float)
+vels  = np.array([m["velocity"] for m in all_mels]).reshape(-1,1).astype(float)
+
+# 3) Escalar cada dimensión a [0,1]
+note_scl = MinMaxScaler().fit(notes)
+dur_scl  = MinMaxScaler().fit(durs)
+vel_scl  = MinMaxScaler().fit(vels)
+n_s = note_scl.transform(notes)
+d_s = dur_scl .transform(durs)
+v_s = vel_scl .transform(vels)
+
+# 4) Crear secuencias de largo=16
+SEQ_LEN = 16
+X, y = [], []
+for i in range(len(n_s) - SEQ_LEN):
+    seq = np.hstack((
+        n_s[i    : i+SEQ_LEN],
+        d_s[i    : i+SEQ_LEN],
+        v_s[i    : i+SEQ_LEN],
+    ))
+    X.append(seq)
+    y.append([
+        n_s[i+SEQ_LEN,0],
+        d_s[i+SEQ_LEN,0],
+        v_s[i+SEQ_LEN,0],
+    ])
+
+X = np.array(X, dtype=np.float32)
+y = np.array(y, dtype=np.float32)
+print(f"🔢 Secuencias totales: {X.shape[0]} → cada una de {SEQ_LEN}×3")
+
+# ——— SAMPLE RÁPIDO PARA TEST ———
+SAMPLE_SIZE = 20000 #100000
+if X.shape[0] > SAMPLE_SIZE:
+    idx = np.random.choice(X.shape[0], SAMPLE_SIZE, replace=False)
+    X = X[idx]
+    y = y[idx]
+    print(f"🔍 Usando muestra de {SAMPLE_SIZE} secuencias para entrenamiento rápido")
+# ————————————————
+
+# 5) Definir modelo LSTM genérico
+def build_model(input_shape):
+    m = Sequential([
+        LSTM(256, input_shape=input_shape, return_sequences=True),
+        Dropout(0.3),
+        LSTM(256),
+        Dropout(0.3),
+        Dense(128, activation="relu"),
+        Dense(3,   activation="linear")
+    ])
+    m.compile(optimizer=Adam(1e-3), loss="mse")
+    return m
+
+# 6) Entrenar y guardar
+model = build_model((SEQ_LEN, 3))
+print("🚀 Entrenando modelo genérico sobre muestra…")
+
+early = EarlyStopping(
+    monitor="val_loss",
+    patience=10,
+    restore_best_weights=True
+)
+
+model.fit(
+    X, y,
+    epochs=3,             #50
+    batch_size=64,
+    validation_split=0.1,
+    shuffle=True,
+    callbacks=[early]
+)
+
+# Guardar pesos y escaladores
+model.save(FULL_WEIGHTS)
+with open(NOTE_SCL, "wb") as f: pickle.dump(note_scl, f)
+with open(DUR_SCL,  "wb") as f: pickle.dump(dur_scl,  f)
+with open(VEL_SCL,  "wb") as f: pickle.dump(vel_scl,  f)
+
+print("✅ Pre-entrenamiento (sample) completado.")
+print("   Pesos →", FULL_WEIGHTS)
+print("   Scalers →", NOTE_SCL, DUR_SCL, VEL_SCL)
+
+
+#train_melody_classifier_happy.py
+
+import os, json, pickle
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from tensorflow.keras.optimizers import Adam
+from sklearn.preprocessing import MinMaxScaler
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+HAPPY_JSON    = os.path.join(BASE_DIR, "happy_midi_data_augmented.json")
+FULL_WEIGHTS  = os.path.join(BASE_DIR, "full_melody.h5")
+NOTE_SCL_PKL  = os.path.join(BASE_DIR, "note_scaler_happy.pkl")
+DUR_SCL_PKL   = os.path.join(BASE_DIR, "duration_scaler_happy.pkl")
+VEL_SCL_PKL   = os.path.join(BASE_DIR, "velocity_scaler_happy.pkl")
+OUTPUT_MODEL  = os.path.join(BASE_DIR, "melody_model_happy.h5")
+
+def load_happy_mels():
+    with open(HAPPY_JSON, "r") as f:
+        raw = json.load(f)
+    mels = []
+    for block in raw.values():
+        for m in block.get("melodias", []):
+            mels.append((m["note"], m["duration"], m["velocity"]))
+    print(f"🎯 Cargando {len(mels)} eventos de {os.path.basename(HAPPY_JSON)}")
+    return mels
+
+
+def preprocess(melodies):
+    notes = np.array([m[0] for m in melodies]).reshape(-1,1).astype(float)
+    durs  = np.array([m[1] for m in melodies]).reshape(-1,1).astype(float)
+    vels  = np.array([m[2] for m in melodies]).reshape(-1,1).astype(float)
+
+    note_scl = MinMaxScaler().fit(notes)
+    dur_scl  = MinMaxScaler().fit(durs)
+    vel_scl  = MinMaxScaler().fit(vels)
+
+    # Guardar scalers para generación
+    with open(NOTE_SCL_PKL, "wb") as f: pickle.dump(note_scl, f)
+    with open(DUR_SCL_PKL,  "wb") as f: pickle.dump(dur_scl,  f)
+    with open(VEL_SCL_PKL,  "wb") as f: pickle.dump(vel_scl,  f)
+
+    n_s = note_scl.transform(notes)
+    d_s = dur_scl.transform(durs)
+    v_s = vel_scl.transform(vels)
+
+    SEQ_LEN = 16
+    X, y = [], []
+    for i in range(len(n_s) - SEQ_LEN):
+        seq = np.hstack((
+            n_s[i:i+SEQ_LEN],
+            d_s[i:i+SEQ_LEN],
+            v_s[i:i+SEQ_LEN],
+        ))
+        X.append(seq)
+        y.append([
+            n_s[i+SEQ_LEN, 0],
+            d_s[i+SEQ_LEN, 0],
+            v_s[i+SEQ_LEN, 0]
+        ])
+
+    X = np.array(X, dtype=np.float32)
+    y = np.array(y, dtype=np.float32)
+    print(f"🔢 Fine-tune secuencias: {X.shape} -> {y.shape}")
+    return X, y
+
+
+def build_model(input_shape):
+    m = Sequential([
+        LSTM(256, input_shape=input_shape, return_sequences=True),
+        Dropout(0.3),
+        LSTM(256),
+        Dropout(0.3),
+        Dense(128, activation="relu"),
+        Dense(3, activation="linear")
+    ])
+    m.compile(optimizer=Adam(1e-3), loss="mse")
+    return m
+
+
+def train():
+    mels = load_happy_mels()
+    X, y = preprocess(mels)
+    if X.shape[0] < 10:
+        print("⚠️ Pocos datos, no entreno.")
+        return
+
+    model = build_model((X.shape[1], X.shape[2]))
+    print("🔄 Cargando pesos genéricos…")
+    model.load_weights(FULL_WEIGHTS)
+
+    print("🚀 Fine-tuning modelo en ‘happy’…")
+    model.fit(
+        X, y,
+        epochs=50,
+        batch_size=32,
+        validation_split=0.2,
+        shuffle=True
+    )
+    model.save(OUTPUT_MODEL)
+    print(f"✅ Modelo fine-tuneado guardado en {OUTPUT_MODEL}")
+
+if __name__ == "__main__":
+    train()
+
+
+# ai/train_melody_classifier.py
+
+import os, json, pickle
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from tensorflow.keras.optimizers import Adam
+from sklearn.preprocessing import MinMaxScaler
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SAD_JSON      = os.path.join(BASE_DIR, "sad_midi_data_augmented.json")
+FULL_WEIGHTS  = os.path.join(BASE_DIR, "full_melody.h5")
+NOTE_SCL_PKL  = os.path.join(BASE_DIR, "note_scaler.pkl")
+DUR_SCL_PKL   = os.path.join(BASE_DIR, "duration_scaler.pkl")
+VEL_SCL_PKL   = os.path.join(BASE_DIR, "velocity_scaler.pkl")
+OUTPUT_MODEL  = os.path.join(BASE_DIR, "melody_model.h5")
+
+def load_sad_mels():
+    with open(SAD_JSON, "r") as f: raw = json.load(f)
+    mels = []
+    for block in raw.values():
+        for m in block["melodias"]:
+            mels.append((m["note"], m["duration"], m["velocity"]))
+    print(f"🎯 Cargando {len(mels)} eventos de sad_midi_data_augmented.json")
+    return mels
+
+def preprocess(melodies):
+    notes = np.array([m[0] for m in melodies]).reshape(-1,1).astype(float)
+    durs  = np.array([m[1] for m in melodies]).reshape(-1,1).astype(float)
+    vels  = np.array([m[2] for m in melodies]).reshape(-1,1).astype(float)
+
+    note_scl     = MinMaxScaler().fit(notes)
+    dur_scl      = MinMaxScaler().fit(durs)
+    vel_scl      = MinMaxScaler().fit(vels)
+
+    # Guardar scalers para generación
+    with open(NOTE_SCL_PKL,"wb") as f: pickle.dump(note_scl, f)
+    with open(DUR_SCL_PKL, "wb") as f: pickle.dump(dur_scl,  f)
+    with open(VEL_SCL_PKL, "wb") as f: pickle.dump(vel_scl,  f)
+
+    n_s = note_scl.transform(notes)
+    d_s = dur_scl.transform(durs)
+    v_s = vel_scl.transform(vels)
+
+    SEQ_LEN = 16
+    X, y = [], []
+    for i in range(len(n_s)-SEQ_LEN):
+        seq = np.hstack((n_s[i:i+SEQ_LEN], d_s[i:i+SEQ_LEN], v_s[i:i+SEQ_LEN]))
+        X.append(seq)
+        y.append([n_s[i+SEQ_LEN,0], d_s[i+SEQ_LEN,0], v_s[i+SEQ_LEN,0]])
+
+    X = np.array(X, dtype=np.float32)
+    y = np.array(y, dtype=np.float32)
+    print("🔢 Fine-tune secuencias:", X.shape, y.shape)
+    return X, y
+
+def build_model(input_shape):
+    m = Sequential([
+        LSTM(256, input_shape=input_shape, return_sequences=True),
+        Dropout(0.3),
+        LSTM(256),
+        Dropout(0.3),
+        Dense(128, activation="relu"),
+        Dense(3, activation="linear")
+    ])
+    m.compile(optimizer=Adam(1e-3), loss="mse")
+    return m
+
+def train():
+    mels = load_sad_mels()
+    X, y = preprocess(mels)
+    if X.shape[0] < 10:
+        print("⚠️ Pocos datos, no entreno.")
+        return
+
+    model = build_model((X.shape[1], X.shape[2]))
+    print("🔄 Cargando pesos genéricos…")
+    model.load_weights(FULL_WEIGHTS)
+
+    print("🚀 Fine-tuning modelo en ‘sad’…")
+    model.fit(X, y, epochs=50, batch_size=32, validation_split=0.2, shuffle=True)
+    model.save(OUTPUT_MODEL)
+    print("✅ Modelo fine-tuneado guardado en", OUTPUT_MODEL)
+
+if __name__ == "__main__":
+    train()
+
+
+# app.py
+
+from fastapi import FastAPI, Depends, HTTPException, Form, UploadFile, File, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
+import os
+import sqlite3
+import shutil
+import uuid
+from jose import JWTError, jwt
+
+from backend.generate_music import generate_music
+from backend.auth import (
+    init_db, hash_password, verify_password, create_access_token,
+    get_current_user, DB_PATH, SECRET_KEY, ALGORITHM
+)
+
+app = FastAPI()
+init_db()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+UPLOAD_DIR = "ai/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+MIS_MELODIAS_DIR = "ai/mis_melodias"
+os.makedirs(MIS_MELODIAS_DIR, exist_ok=True)
+
+
+# --------- MODELOS ---------
+class MelodyRequest(BaseModel):
+    tone: str
+    emotion: str
+
+
+class ValoracionRequest(BaseModel):
+    midi_name: str
+    puntuacion: int
+
+
+# --------- GENERAR MELODÍA ---------
+@app.post("/generate")
+async def generate_melody(request_data: MelodyRequest, request: Request):
+    # extraer usuario (si hay)
+    token = request.headers.get("Authorization")
+    username = None
+    if token and token.startswith("Bearer "):
+        try:
+            payload = jwt.decode(token.split()[1], SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+        except JWTError:
+            pass
+
+    # nombre temporal
+    tmp_name = f"tmp_{uuid.uuid4().hex[:8]}.mid"
+    tmp_path = os.path.join(MIS_MELODIAS_DIR, tmp_name)
+
+    # construir escala
+    base_tone = request_data.tone.strip().upper()
+    emotion = request_data.emotion.strip().lower()
+    if emotion == "sad":
+        scale_key = f"{base_tone}MINOR"
+    elif emotion == "happy":
+        scale_key = f"{base_tone}MAJOR"
+    else:
+        scale_key = f"{base_tone}MINOR"
+
+    # generar música
+    try:
+        generate_music(scale_key, output_path=tmp_path)
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"No se pudo generar música: {e}")
+
+    # nombre definitivo
+    if username:
+        final_name = f"{username}_{uuid.uuid4().hex[:8]}.mid"
+    else:
+        final_name = f"melodia_{uuid.uuid4().hex[:8]}.mid"
+    final_path = os.path.join(MIS_MELODIAS_DIR, final_name)
+    shutil.move(tmp_path, final_path)
+
+    # guardar en BD
+    if username:
+        conn = sqlite3.connect(DB_PATH)
+        conn.execute(
+            "INSERT INTO mis_melodias(username, midi_name) VALUES(?, ?)",
+            (username, final_name)
+        )
+        conn.commit()
+        conn.close()
+
+    return FileResponse(final_path, filename=final_name, media_type="audio/midi")
+
+
+# --------- AUTENTICACIÓN & USUARIOS ---------
+@app.post("/register")
+def register(username: str = Form(...), password: str = Form(...)):
+    hashed = hash_password(password)
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=400, detail="El usuario ya existe")
+    finally:
+        conn.close()
+    return {"message": f"Usuario {username} registrado correctamente"}
+
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT password FROM users WHERE username = ?", (form_data.username,))
+    result = c.fetchone()
+    conn.close()
+
+    if not result or not verify_password(form_data.password, result[0]):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+
+    token = create_access_token({"sub": form_data.username})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+# --------- MELODÍAS PÚBLICAS ---------
+@app.get("/melodias")
+def listar_melodias():
+    return [f for f in os.listdir(UPLOAD_DIR) if f.endswith(".mid")]
+
+
+@app.get("/melodias/{filename}")
+def descargar_melodia(filename: str):
+    path = os.path.join(UPLOAD_DIR, filename)
+    if os.path.exists(path):
+        return FileResponse(path, filename=filename, media_type="audio/midi")
+    raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
+
+# --------- SUBIR MELODÍA PÚBLICA ---------
+@app.post("/melodias/upload")
+async def subir_melodia(file: UploadFile = File(...), username: str = Depends(get_current_user)):
+    if not file.filename.endswith(".mid"):
+        raise HTTPException(status_code=400, detail="Solo se permiten archivos .mid")
+    path = os.path.join(UPLOAD_DIR, file.filename)
+    with open(path, "wb") as f:
+        f.write(await file.read())
+    return JSONResponse({"message": f"Melodía {file.filename} subida por {username}"}, status_code=201)
+
+
+# --------- VALORACIONES ---------
+@app.post("/valorar")
+def valorar_melodia(valoracion: ValoracionRequest, username: str = Depends(get_current_user)):
+    if not (1 <= valoracion.puntuacion <= 5):
+        raise HTTPException(status_code=400, detail="La puntuación debe ser entre 1 y 5")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT id FROM valoraciones WHERE midi_name = ? AND username = ?", (valoracion.midi_name, username))
+    if c.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Ya has valorado esta melodía")
+    c.execute("INSERT INTO valoraciones (midi_name, username, puntuacion) VALUES (?, ?, ?)",
+              (valoracion.midi_name, username, valoracion.puntuacion))
+    conn.commit()
+    conn.close()
+    return {"message": "Valoración registrada correctamente"}
+
+
+@app.get("/valoraciones/{midi_name}")
+def obtener_valoracion(midi_name: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT AVG(puntuacion), COUNT(*) FROM valoraciones WHERE midi_name = ?", (midi_name,))
+    avg, cnt = c.fetchone()
+    conn.close()
+    return {
+        "midi_name": midi_name,
+        "valoracion_media": round(avg, 2) if cnt else None,
+        "cantidad_votos": cnt
+    }
+
+
+# --------- MIS MELODÍAS ---------
+@app.get("/mis-melodias")
+def obtener_mis_melodias(username: str = Depends(get_current_user)):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT midi_name FROM mis_melodias WHERE username = ?", (username,))
+    rows = [r[0] for r in c.fetchall()]
+    conn.close()
+    # solo archivos que aún existan
+    return [m for m in rows if os.path.exists(os.path.join(MIS_MELODIAS_DIR, m))]
+
+
+@app.get("/mis-melodias/{filename}")
+def descargar_melodia_personal(filename: str, username: str = Depends(get_current_user)):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM mis_melodias WHERE username = ? AND midi_name = ?", (username, filename))
+    if not c.fetchone():
+        conn.close()
+        raise HTTPException(status_code=403, detail="No tienes permiso para esta melodía")
+    conn.close()
+    path = os.path.join(MIS_MELODIAS_DIR, filename)
+    if os.path.exists(path):
+        return FileResponse(path, filename=filename, media_type="audio/midi")
+    raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
+
+#auth.py
+
+import sqlite3
+from passlib.context import CryptContext
+from jose import jwt
+from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+
+# Configuración del token JWT
+SECRET_KEY = "clave-secreta-para-el-jwt"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+# Ruta a la base de datos
+DB_PATH = "users.db"
+
+# Crea contexto para hasheo de contraseñas
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# OAuth2 para autenticación
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+# Función para inicializar la base de datos
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # Crear tabla de usuarios
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    )
+    """)
+
+    # Crear tabla de valoraciones
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS valoraciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        midi_name TEXT NOT NULL,
+        username TEXT NOT NULL,
+        puntuacion INTEGER NOT NULL CHECK (puntuacion >= 1 AND puntuacion <= 5),
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS mis_melodias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        midi_name TEXT NOT NULL,
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Hashear contraseña
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+# Verificar contraseña
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
+
+# Crear token de acceso
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# Obtener usuario desde el token
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        return username
+    except Exception:
+        raise HTTPException(status_code=401, detail="Token inválido")
+
+
+# backend/generate_music.py
+
+import os
+import json
+import pickle
+import random
+from typing import List, Tuple
+
+import numpy as np
+import tensorflow as tf
+from mido import MidiFile, MidiTrack, Message
+
+# —————————————————————————————————————————————————————————————————————————
+# Paths y configuración
+BASE_DIR             = os.path.dirname(os.path.abspath(__file__))
+AI_DIR               = os.path.join(BASE_DIR, '..', 'ai')
+
+# Triads & progresiones (idéntico a antes)
+LOWER_BOUND     = 24   # C3
+UPPER_BOUND     = 84   # C6
+TICKS_PER_BEAT  = 384
+
+DURATION_PATTERNS = [
+    [4,4,4,4],
+    [2,6,2,6],
+    [6,2,6,2],
+]
+
+PROGRESSIONS = [
+    [0,3,4,0], [0,4,5,3], [0,6,5,6],
+    [0,5,2,6], [0,2,3,4], [0,5,3,2],
+    [0,2,6,3], [0,4,3,5], [0,5,4,3],
+    [0,6,0,4],
+]
+
+# Cargar grados de escala
+DEGREES_PATH   = os.path.join(AI_DIR, 'scale_degrees.json')
+with open(DEGREES_PATH, 'r') as f:
+    SCALE_DEGREES = json.load(f)
+
+# Utilitarios de semitonos
+NOTE_TO_SEMITONE = {
+    "C":0, "C#":1, "Db":1, "D":2, "D#":3, "Eb":3,
+    "E":4, "Fb":4, "F":5, "E#":5, "F#":6, "Gb":6,
+    "G":7, "G#":8, "Ab":8, "A":9, "A#":10,"Bb":10,
+    "B":11,"Cb":11
+}
+
+# —————————————————————————————————————————————————————————————————————————
+def clamp_to_range(n: int) -> int:
+    while n < LOWER_BOUND: n += 12
+    while n > UPPER_BOUND: n -= 12
+    return n
+
+def is_semitone_in_scale(midi_note: int, scale: str) -> bool:
+    sems = [NOTE_TO_SEMITONE[n] for n in SCALE_DEGREES[scale]]
+    return (midi_note % 12) in sems
+
+def semitone_offset(from_scale: str, to_scale: str) -> int:
+    src = NOTE_TO_SEMITONE[SCALE_DEGREES[from_scale][0]]
+    tgt = NOTE_TO_SEMITONE[SCALE_DEGREES[to_scale][0]]
+    diff = (tgt - src) % 12
+    return diff if diff <= 6 else diff - 12
+
+# —————————————————————————————————————————————————————————————————————————
+def load_pipeline(scale_type: str):
+    """
+    Carga el modelo LSTM y scalers para 'minor' o 'major',
+    así como el JSON de datos correspondiente.
+    """
+    if scale_type == 'major':
+        model_path   = os.path.join(AI_DIR, 'melody_model_happy.h5')
+        note_scl_p   = os.path.join(AI_DIR, 'note_scaler_happy.pkl')
+        dur_scl_p    = os.path.join(AI_DIR, 'duration_scaler_happy.pkl')
+        vel_scl_p    = os.path.join(AI_DIR, 'velocity_scaler_happy.pkl')
+        data_json    = os.path.join(AI_DIR, 'happy_midi_data.json')
+    else:
+        model_path   = os.path.join(AI_DIR, 'melody_model.h5')
+        note_scl_p   = os.path.join(AI_DIR, 'note_scaler.pkl')
+        dur_scl_p    = os.path.join(AI_DIR, 'duration_scaler.pkl')
+        vel_scl_p    = os.path.join(AI_DIR, 'velocity_scaler.pkl')
+        data_json    = os.path.join(AI_DIR, 'sad_midi_data.json')
+
+    melody_model      = tf.keras.models.load_model(model_path)
+    note_scaler       = pickle.load(open(note_scl_p, 'rb'))
+    duration_scaler   = pickle.load(open(dur_scl_p,  'rb'))
+    velocity_scaler   = pickle.load(open(vel_scl_p,  'rb'))
+    return melody_model, note_scaler, duration_scaler, velocity_scaler, data_json
+
+# —————————————————————————————————————————————————————————————————————————
+def build_triad_chords(
+    target_scale: str,
+    length: int = 4
+) -> Tuple[List[List[int]], List[int], List[int]]:
+    prog       = random.choice(PROGRESSIONS)
+    degrees    = [prog[i % len(prog)] for i in range(length)]
+    pattern    = random.choice(DURATION_PATTERNS)
+    chord_durs = [d * TICKS_PER_BEAT for d in pattern]
+
+    ext_types = ['triad', '7th']
+    weights   = [0.65, 0.35]
+    ext_flags = random.choices(ext_types, weights=weights, k=length)
+
+    notes = SCALE_DEGREES[target_scale]
+    chords, vels = [], []
+
+    for deg, ext in zip(degrees, ext_flags):
+        root_name  = notes[deg]
+        third_name = notes[(deg+2) % 7]
+        fifth_name = notes[(deg+4) % 7]
+
+        root_pc  = NOTE_TO_SEMITONE[root_name]
+        third_pc = NOTE_TO_SEMITONE[third_name]
+        fifth_pc = NOTE_TO_SEMITONE[fifth_name]
+
+        root_3rd = clamp_to_range(root_pc + 36)
+        root_4th = clamp_to_range(root_pc + 48)
+        root_5th = clamp_to_range(root_pc + 60)
+
+        third_5th = clamp_to_range(root_5th + ((third_pc - root_pc) % 12))
+        fifth_5th = clamp_to_range(root_5th + ((fifth_pc - root_pc) % 12))
+
+        chord_notes = [root_3rd, root_4th, root_5th, third_5th, fifth_5th]
+
+        if ext == '7th':
+            sev_name = notes[(deg+6) % 7]
+            sev_pc   = NOTE_TO_SEMITONE[sev_name]
+            sev_5th  = clamp_to_range(root_5th + ((sev_pc - root_pc) % 12))
+            chord_notes.append(sev_5th)
+
+        chords.append(chord_notes)
+        vels.append(random.randint(63, 95))
+
+    return chords, chord_durs, vels
+
+# —————————————————————————————————————————————————————————————————————————
+def generate_melody(
+    target_scale: str,
+    length: int = 8
+) -> Tuple[List[int], List[int], List[int]]:
+    """
+    Genera una melodía LSTM ajustada al target_scale.
+    Detecta major vs minor y carga el pipeline correspondiente.
+    """
+    # Determinar modo
+    mode = 'major' if target_scale.endswith('MAJOR') else 'minor'
+    model, note_scaler, duration_scaler, velocity_scaler, data_json = load_pipeline(mode)
+
+    # Cargar datos preprocesados
+    with open(data_json, 'r') as f:
+        data = json.load(f)
+
+    # Filtrar eventos del mismo modo
+    candidates = [
+        (scale, note_dict)
+        for scale, content in data.items()
+        for note_dict in content.get('melodias', [])
+        if (mode == 'minor' and scale.endswith('MINOR'))
+           or (mode == 'major' and scale.endswith('MAJOR'))
+    ]
+    random.shuffle(candidates)
+    seed_notes = candidates[:3]
+
+    # Semitone offset y preparar semilla
+    seed = []
+    for base_scale, m in seed_notes:
+        offset = semitone_offset(base_scale, target_scale)
+        seed.append({
+            'note':     m['note'] + offset,
+            'duration': m['duration'],
+            'velocity': m['velocity']
+        })
+
+    # Crear secuencia de contexto (16 pasos)
+    seq = [[s['note'], s['duration'], s['velocity']] for s in seed]
+    CONTEXT = 16
+    if len(seq) < CONTEXT:
+        padding = [[0.0,0.0,0.0]] * (CONTEXT - len(seq))
+        seq_padded = padding + seq
+    else:
+        seq_padded = seq[-CONTEXT:]
+
+    input_seq = np.array([seq_padded], dtype=np.float32)  # (1,16,3)
+
+    melody, mdurs, mvels = [], [], []
+    for _ in range(length):
+        pn, pd, pv = model.predict(input_seq, verbose=0)[0]
+        note_int = int(round(note_scaler.inverse_transform([[pn]])[0][0]))
+        dur_int  = max(1, int(round(duration_scaler.inverse_transform([[pd]])[0][0])))
+        vel_int  = int(round(velocity_scaler.inverse_transform([[pv]])[0][0]))
+
+        # Ajuste al semitono más cercano en la escala
+        if is_semitone_in_scale(note_int, target_scale):
+            final_note = note_int
+        else:
+            base    = note_int % 12
+            sems    = [NOTE_TO_SEMITONE[n] for n in SCALE_DEGREES[target_scale]]
+            nearest = min(sems, key=lambda s: abs(s-base))
+            final_note = (note_int // 12)*12 + nearest
+
+        melody.append(final_note)
+        mdurs.append(dur_int)
+        mvels.append(vel_int)
+
+        # Slide window
+        new_scaled = np.hstack([
+            note_scaler.transform([[final_note]]),
+            duration_scaler.transform([[dur_int]]),
+            velocity_scaler.transform([[vel_int]])
+        ]).reshape(1,1,3)
+        input_seq = np.concatenate([input_seq[:,1:,:], new_scaled], axis=1)
+
+    return melody, mdurs, mvels
+
+# —————————————————————————————————————————————————————————————————————————
+def create_midi_file(
+    chords, chord_durs, chord_vels,
+    melody, mel_durs, mel_vels,
+    output_path='generated_music.mid'
+):
+    # … (idéntico al original) …
+    total_chord = sum(chord_durs)
+    total_mel   = sum(mel_durs)
+    scale_f     = total_chord / total_mel if total_mel > 0 else 1.0
+    mel_durs    = [max(1, int(d * scale_f)) for d in mel_durs]
+
+    events, abs_time = [], 0
+    # Acordes
+    for chord, dur, _ in zip(chords, chord_durs, chord_vels):
+        for note in chord:
+            note_up = clamp_to_range(note + 12)
+            vel     = random.randint(63, 80)
+            events.append((abs_time, Message('note_on',  note=note_up, velocity=vel)))
+            events.append((abs_time + dur, Message('note_off', note=note_up, velocity=vel)))
+        abs_time += dur
+
+    # Melodía
+    abs_time = 0
+    for n, dur, _ in zip(melody, mel_durs, mel_vels):
+        nm  = clamp_to_range(n)
+        vel = random.randint(53, 70)
+        events.append((abs_time,         Message('note_on',  note=nm, velocity=vel)))
+        events.append((abs_time + dur,   Message('note_off', note=nm, velocity=vel)))
+        abs_time += dur
+
+    # Ordenar y convertir a delta-times
+    events.sort(key=lambda x: x[0])
+    mid   = MidiFile(ticks_per_beat=TICKS_PER_BEAT)
+    track = MidiTrack(); mid.tracks.append(track)
+    last_time = 0
+    for abs_t, msg in events:
+        msg.time = abs_t - last_time
+        track.append(msg)
+        last_time = abs_t
+
+    mid.save(output_path)
+    print(f'✅ Música guardada en {output_path}')
+
+# —————————————————————————————————————————————————————————————————————————
+def generate_music(
+    scale: str,
+    output_path: str = 'generated_music.mid'
+):
+    target = scale.upper()
+    if not target.endswith(('MINOR','MAJOR')):
+        target = f"{target}MINOR"
+
+    chords, cdurs, cvels = build_triad_chords(target)
+    melody, mdurs, mvels = generate_melody(target)
+    create_midi_file(chords, cdurs, cvels, melody, mdurs, mvels, output_path)
+
+
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Melodías 🎵</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html" class="active">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+          alt="Perfil"
+          class="profile-icon"
+        />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="mis_melodias.html">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div id="welcome-toast" class="toast"></div>
+
+  <div class="container">
+    <!-- Campo Tempo eliminado -->
+    <label for="tone">Tono:</label>
+    <input type="text" id="tone" placeholder="Ejemplo: C" />
+
+    <label for="emotion">Emoción:</label>
+    <select id="emotion">
+      <option value="happy">Happy 😊</option>
+      <option value="sad">Sad 😢</option>
+    </select>
+
+    <button id="generateMidi">🎵 Generar MIDI</button>
+
+    <div id="loadingSpinner"></div>
+    <p id="statusMessage">Generando melodía...</p>
+    <p id="errorMessage">❌ Debes ingresar un Tono.</p>
+    <a id="downloadLink">⬇ Descargar MIDI</a>
+  </div>
+
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
+
+  <script>
+    async function generateMelody() {
+      const tone = document.getElementById("tone").value.trim();
+      const emotion = document.getElementById("emotion").value;
+      const statusMessage = document.getElementById("statusMessage");
+      const errorMessage = document.getElementById("errorMessage");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const downloadLink = document.getElementById("downloadLink");
+      const token = localStorage.getItem("token");
+
+      if (!tone) {
+        errorMessage.innerText = "❌ Debes ingresar un Tono.";
+        errorMessage.style.display = "block";
+        statusMessage.style.display = "none";
+        loadingSpinner.style.display = "none";
+        return;
+      }
+      if (!token) {
+        errorMessage.innerText = "❌ Debes iniciar sesión para generar tu melodía.";
+        errorMessage.style.display = "block";
+        statusMessage.style.display = "none";
+        loadingSpinner.style.display = "none";
+        return;
+      }
+
+      // Ocultamos errores y mostramos loading
+      errorMessage.style.display = "none";
+      statusMessage.style.display = "block";
+      statusMessage.innerText = "Generando melodía...";
+      loadingSpinner.style.display = "block";
+      downloadLink.style.display = "none";
+
+      const startTime = Date.now();
+      try {
+        const res = await fetch("http://127.0.0.1:8000/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            tone: tone,
+            emotion: emotion
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Error inesperado");
+        }
+
+        // Recibimos directamente el MIDI como blob
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = `melodia_${Date.now()}.mid`;
+        downloadLink.style.display = "flex";
+
+        const elapsed = Date.now() - startTime;
+        setTimeout(() => {
+          statusMessage.innerText = "✅ ¡Melodía generada con éxito!";
+          loadingSpinner.style.display = "none";
+        }, Math.max(2000 - elapsed, 0));
+
+      } catch (e) {
+        console.error(e);
+        statusMessage.innerText = "❌ Error al generar la melodía";
+        loadingSpinner.style.display = "none";
+      }
+    }
+
+    document.getElementById("generateMidi").addEventListener("click", generateMelody);
+
+    // Menú con retardo
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
+    let hideTimeout;
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000);
+    });
+
+    // Cerrar sesión
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("👋 Has cerrado sesión");
+      window.location.href = "login.html";
+    });
+
+    // Toast de bienvenida
+    function obtenerUsuarioDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || null;
+      } catch {
+        return null;
+      }
+    }
+    const username = obtenerUsuarioDesdeToken();
+    if (username) {
+      const toast = document.getElementById("welcome-toast");
+      toast.textContent = `🎵 ¡Bienvenido, ${username}!`;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- login.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="profile-icon" />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="mis_melodias.html">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Iniciar Sesión</h2>
+    <label for="username-login">Nombre de usuario:</label>
+    <input id="username-login" type="text" placeholder="Nombre de usuario" />
+    <label for="password-login">Contraseña:</label>
+    <input id="password-login" type="password" placeholder="Contraseña" />
+    <button id="login-btn">Entrar</button>
+  </div>
+
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
+
+  <script>
+    // Menú con retardo
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
+    let hideTimeout;
+
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000);
+    });
+
+    // 🔐 Cerrar sesión
+    const logoutBtn = document.getElementById("logout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        alert("👋 Has cerrado sesión");
+        window.location.href = "login.html";
+      });
+    }
+
+    // ⛔ Eliminar saludo de bienvenida
+
+    // Inicio de sesión
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username-login").value;
+      const password = document.getElementById("password-login").value;
+
+      if (!username || !password) return alert("Rellena todos los campos");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            username: username,
+            password: password,
+            grant_type: "password"
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.access_token);
+          alert("✅ Sesión iniciada correctamente");
+          window.location.href = "index.html";
+        } else {
+          alert("❌ " + data.detail);
+        }
+      } catch (err) {
+        alert("❌ Error al iniciar sesión.");
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- mis_melodias.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Melodías</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Mis Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="profile-icon" />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="mis_melodias.html">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>🎵 Tus melodías generadas</h2>
+    <div id="melodiasList" class="midi-grid"></div>
+    <p id="loginWarning" style="text-align:center;">🔒 Debes iniciar sesión para ver tus melodías.</p>
+  </div>
+
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    async function cargarMisMelodias() {
+      if (!token) return;
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/mis-melodias", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Error autenticando");
+
+        const melodias = await res.json();
+        const contenedor = document.getElementById("melodiasList");
+        document.getElementById("loginWarning").style.display = "none";
+
+        melodias.forEach(midi => {
+          const card = document.createElement("div");
+          card.className = "midi-card";
+          card.innerHTML = `<h4>${midi.replace(".mid", "")}</h4>`;
+
+          const downloadBtn = document.createElement("a");
+          downloadBtn.textContent = "⬇ Descargar";
+          downloadBtn.className = "download-button";
+          downloadBtn.href = "#";
+
+          downloadBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            try {
+              const response = await fetch(`http://127.0.0.1:8000/mis-melodias/${encodeURIComponent(midi)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+
+              if (!response.ok) throw new Error("No se pudo descargar");
+
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = midi;
+              a.click();
+              window.URL.revokeObjectURL(url);
+            } catch (error) {
+              alert("❌ Error al descargar la melodía.");
+              console.error(error);
+            }
+          });
+
+          card.appendChild(downloadBtn);
+          contenedor.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error cargando melodías:", err);
+      }
+    }
+
+    if (token) cargarMisMelodias();
+
+    // Mostrar menú perfil
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
+    let hideTimeout;
+
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000);
+    });
+
+    // Cerrar sesión
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("👋 Has cerrado sesión");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- register.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrarse</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html">Generador</a>
+        <a href="usuarios.html">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" alt="Perfil" class="profile-icon" />
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="mis_melodias.html">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Registrarse</h2>
+    <label for="username-register">Nuevo usuario:</label>
+    <input id="username-register" type="text" placeholder="Nuevo usuario" />
+
+    <label for="password-register">Contraseña:</label>
+    <input id="password-register" type="password" placeholder="Contraseña" />
+
+    <button id="register-btn">Registrar</button>
+  </div>
+
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
+
+  <script>
+    // Menú con retardo
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown = document.querySelector(".dropdown-content");
+    let hideTimeout;
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000);
+    });
+
+    // 🔐 Cerrar sesión
+    const logoutBtn = document.getElementById("logout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        alert("👋 Has cerrado sesión");
+        window.location.href = "login.html";
+      });
+    }
+
+    // 📝 Registro de usuario
+    document.getElementById("register-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username-register").value;
+      const password = document.getElementById("password-register").value;
+
+      if (!username || !password) return alert("Rellena todos los campos");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ username, password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("✅ Registro exitoso. Ahora inicia sesión.");
+          window.location.href = "login.html";
+        } else {
+          alert("❌ " + data.detail);
+        }
+      } catch (err) {
+        alert("❌ Error al registrar.");
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+/* styles.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+    --bg: #1a1a1a;
+    --bg-secondary: #242424;
+    --card: rgba(255, 255, 255, 0.05);
+    --accent: #00f97c;
+    --accent-hover: #00d369;
+    --text: #f2f2f2;
+    --muted: #b3b3b3;
+    --error: #ff4d4d;
+    --shadow: rgba(0, 0, 0, 0.7);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    background-image: url("https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?blur=50");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    animation: fadeIn 0.8s ease-in-out both;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: -1;
+}
+
+header {
+    position: relative;
+    background-color: rgba(26, 26, 26, 0.8);
+    padding: 25px 0 10px;
+    text-align: center;
+    box-shadow: 0 2px 15px var(--shadow);
+    overflow: visible;
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 249, 124, 0.15), transparent 60%);
+    animation: pulseGlow 8s linear infinite;
+    z-index: 0;
+    filter: blur(60px);
+}
+
+@keyframes pulseGlow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+header h1, .navbar {
+    position: relative;
+    z-index: 2;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.navbar {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(40, 40, 40, 0.9);
+    backdrop-filter: blur(6px);
+    padding: 14px 30px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 10px var(--shadow);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar .nav-center {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex: 1;
+}
+
+.navbar a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.navbar a:hover {
+    transform: scale(1.03);
+    background-color: #3a3a3a;
+}
+
+.navbar a.active {
+    background-color: var(--accent);
+    color: #000;
+    box-shadow: 0 0 12px var(--accent);
+}
+
+.container {
+    max-width: 560px;
+    margin: 70px auto;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 12px 35px var(--shadow);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex: 1;
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin: 20px 0 6px;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: var(--text);
+    transition: 0.2s ease;
+}
+
+input::placeholder {
+    color: #777;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 10px rgba(0, 249, 124, 0.3);
+    transition: box-shadow 0.3s ease;
+}
+
+button {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 25px;
+    box-shadow: 0 4px 0 var(--accent-hover);
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background: var(--accent-hover);
+    transform: scale(1.015);
+    box-shadow: 0 0 14px var(--accent);
+}
+
+#downloadLink {
+    display: none;
+    margin-top: 20px;
+    background: var(--error);
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #b71c1c;
+    transition: 0.3s ease-in-out;
+}
+
+#statusMessage, #errorMessage {
+    display: none;
+    margin-top: 20px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#statusMessage { color: var(--accent); }
+#errorMessage { color: var(--error); }
+
+#loadingSpinner {
+    display: none;
+    margin: 15px auto;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid var(--accent);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.floating-notes {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3d/Music-note-black.svg');
+    background-repeat: repeat;
+    background-size: 50px;
+    opacity: 0.02;
+    animation: floatNotes 60s linear infinite;
+    z-index: -2;
+}
+
+@keyframes floatNotes {
+    from { background-position: 0 0; }
+    to { background-position: 0 -1000px; }
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0.6;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(26, 26, 26, 0.5);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease-in-out;
+}
+
+footer:hover {
+    opacity: 0.9;
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    padding: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.dropdown-content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    background-color: rgba(40, 40, 40, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    min-width: 180px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+}
+
+.dropdown-content.show-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: #333;
+}
+
+.profile-menu:hover .dropdown-content {
+    display: block;
+}
+
+/* 🎉 Toast de bienvenida */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 249, 124, 0.95);
+    color: black;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 🎶 MIDIs predefinidos */
+.midi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.midi-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    color: var(--text);
+    box-shadow: 0 8px 20px var(--shadow);
+    backdrop-filter: blur(12px);
+    transition: transform 0.2s;
+}
+
+.midi-card:hover {
+    transform: scale(1.02);
+}
+
+.midi-card a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: var(--accent);
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s ease;
+}
+
+.midi-card a:hover {
+    background-color: var(--accent-hover);
+}
+
+/* 📤 Subida de archivos */
+#uploadSection {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+#uploadSection input[type="file"] {
+    margin-bottom: 12px;
+    border: 2px dashed var(--accent);
+    border-radius: 8px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    max-width: 300px;
+}
+
+#uploadSection input[type="file"]:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#userUploads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 30px;
+    justify-content: center;
+}
+
+
+
+
+<!-- usuarios.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIDIs de Usuarios 🎵</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header>
+    <h1>Generador de Melodías</h1>
+    <nav class="navbar">
+      <div class="nav-center">
+        <a href="index.html">Generador</a>
+        <a href="usuarios.html" class="active">MIDIs de otros usuarios</a>
+      </div>
+      <div class="profile-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+             alt="Perfil" class="profile-icon"/>
+        <div class="dropdown-content">
+          <a href="login.html">Iniciar sesión</a>
+          <a href="register.html">Registrarse</a>
+          <a href="mis_melodias.html">Mis melodías</a>
+          <a href="#" id="logout">Cerrar sesión</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>MIDIs de Otros Usuarios 🎧</h2>
+
+    <div id="midiSection" style="display: none;">
+      <p>Descarga melodías compartidas por la comunidad:</p>
+      <div id="midiList" class="midi-grid"></div>
+
+      <div id="uploadSection">
+        <h3>📤 Sube tu propia melodía</h3>
+        <label for="scaleNote">Nota:</label>
+        <input list="noteList" id="scaleNote" placeholder="Ej.: C"/>
+        <datalist id="noteList">
+          <option value="C">
+          <option value="C#">
+          <option value="D">
+          <option value="D#">
+          <option value="E">
+          <option value="F">
+          <option value="F#">
+          <option value="G">
+          <option value="G#">
+          <option value="A">
+          <option value="A#">
+          <option value="B">
+        </datalist>
+
+        <label for="scaleMode">Modo:</label>
+        <select id="scaleMode">
+          <option value="MAJOR">Major</option>
+          <option value="MINOR">Minor</option>
+        </select>
+
+        <input type="file" id="midiUpload" accept=".mid"/>
+        <button id="uploadBtn">Subir MIDI</button>
+        <p id="uploadError"
+           style="color: var(--error); display:none; margin-top:8px;">
+          ❌ Rellena Nota, Modo y selecciona un archivo .mid
+        </p>
+      </div>
+    </div>
+
+    <p id="loginWarning"
+       style="text-align:center; margin-top:40px;">
+      🔒 Debes iniciar sesión para acceder a las melodías de la comunidad.
+    </p>
+  </div>
+
+  <footer>
+    <p>🎼 Generador de Melodías – Desarrollado por Asier Iturriotz © 2025</p>
+  </footer>
+
+  <script>
+    // ---- Menú perfil --------------------
+    const profileMenu = document.querySelector(".profile-menu");
+    const dropdown    = document.querySelector(".dropdown-content");
+    let hideTimeout;
+    profileMenu.addEventListener("mouseenter", () => {
+      clearTimeout(hideTimeout);
+      dropdown.classList.add("show-dropdown");
+    });
+    profileMenu.addEventListener("mouseleave", () => {
+      hideTimeout = setTimeout(() => {
+        dropdown.classList.remove("show-dropdown");
+      }, 1000);
+    });
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      alert("👋 Has cerrado sesión");
+      window.location.href = "login.html";
+    });
+
+    // ---- Token & usuario ----------------
+    function obtenerUsuarioDesdeToken() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || null;
+      } catch {
+        return null;
+      }
+    }
+    const username = obtenerUsuarioDesdeToken();
+    if (username) {
+      document.getElementById("midiSection").style.display  = "block";
+      document.getElementById("loginWarning").style.display = "none";
+      cargarMelodias();
+    }
+
+    // ---- Carga comunidad -----------------
+    async function cargarMelodias() {
+      try {
+        const res      = await fetch("http://127.0.0.1:8000/melodias");
+        const melodias = await res.json();
+        const midiList = document.getElementById("midiList");
+        midiList.innerHTML = "";
+
+        // ordenar por timestamp (parte después de "_") para que los más nuevos queden al final
+        melodias.sort((a, b) => {
+          const tA = Number( a.split("_")[1]?.replace(".mid","") || 0 );
+          const tB = Number( b.split("_")[1]?.replace(".mid","") || 0 );
+          return tA - tB;
+        });
+
+        melodias.forEach((nombre, idx) => {
+          // extraer escala limpia:
+          let clean = nombre.replace('.mid','');
+          let escala;
+          if (clean.includes('_')) {
+            escala = clean.split('_')[0];            // ej. "CMAJOR"
+          } else if (clean.includes(' - ')) {
+            escala = clean.split(' - ')[1];           // ej. "AMINOR"
+          } else {
+            escala = clean;
+          }
+
+          const card = document.createElement("div");
+          card.className = "midi-card";
+          card.innerHTML = `
+            <h4>MIDI ${idx+1} - ${escala}</h4>
+            <a href="http://127.0.0.1:8000/melodias/${encodeURIComponent(nombre)}" download>
+              ⬇ Descargar
+            </a>
+            <div id="valoracion-${nombre}" class="valoracion-block">
+              Cargando valoración...
+            </div>
+          `;
+          midiList.appendChild(card);
+          actualizarValoracion(nombre);
+        });
+      } catch(err) {
+        console.error("Error cargando comunidad:", err);
+      }
+    }
+
+    // ---- Valoraciones -------------------
+    async function actualizarValoracion(midiName) {
+      try {
+        const resp = await fetch(
+          `http://127.0.0.1:8000/valoraciones/${encodeURIComponent(midiName)}`
+        );
+        const data = await resp.json();
+        const cont = document.getElementById(`valoracion-${midiName}`);
+        let html   = `<div style="margin-top:18px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">`;
+
+        if (data.valoracion_media !== null) {
+          const stars = Math.round(data.valoracion_media);
+          html += `<div style="color:gold;font-size:18px;margin-bottom:6px;">
+                     ⭐ ${'★'.repeat(stars)}${'☆'.repeat(5-stars)} (${data.cantidad_votos} votos)
+                   </div>`;
+        } else {
+          html += `<div style="color:gray;font-size:15px;margin-bottom:6px;">
+                     Sin valoraciones aún. ¡Sé el primero en valorar!
+                   </div>`;
+        }
+
+        html += `<div style="margin-top:8px;font-size:22px;">`;
+        [1,2,3,4,5].forEach(p => {
+          html += `<span style="cursor:pointer;color:white;"
+                        onclick="valorar('${midiName}',${p})">★</span>`;
+        });
+        html += `</div></div>`;
+
+        cont.innerHTML = html;
+      } catch(e) {
+        console.error("Error valoración:", e);
+      }
+    }
+
+    async function valorar(midiName, puntuacion) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Debes iniciar sesión para valorar.");
+        return;
+      }
+      try {
+        const resp = await fetch("http://127.0.0.1:8000/valorar", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ midi_name: midiName, puntuacion })
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail);
+        alert(`✅ Valoraste "${midiName}" con ${puntuacion} estrellas`);
+        actualizarValoracion(midiName);
+      } catch(err) {
+        alert("❌ Error al valorar: " + err.message);
+      }
+    }
+
+    // ---- Subida de MIDI -----------------
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const note   = document.getElementById("scaleNote").value.trim().toUpperCase();
+      const mode   = document.getElementById("scaleMode").value.toUpperCase();
+      const fileIn = document.getElementById("midiUpload");
+      const errP   = document.getElementById("uploadError");
+      const token  = localStorage.getItem("token");
+
+      if (!note || !mode || !fileIn.files.length) {
+        errP.style.display = "block";
+        return;
+      }
+      errP.style.display = "none";
+
+      // renombrar con escala y timestamp
+      const rawFile   = fileIn.files[0];
+      const timestamp = Date.now();
+      const newName   = `${note}${mode}_${timestamp}.mid`;
+
+      const formData = new FormData();
+      formData.append("file", rawFile, newName);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/melodias/upload", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "upload failed");
+        }
+        alert("✅ Melodía subida correctamente.");
+        fileIn.value = "";
+        cargarMelodias();
+      } catch(e) {
+        console.error(e);
+        alert("❌ Error al subir la melodía: " + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+#docker-compose.yml
+
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai/mis_melodias:/app/ai/mis_melodias
+      - ./ai/uploads:/app/ai/uploads
+      - ./users.db:/app/users.db
+
+  frontend:
+    image: python:3.10-slim
+    working_dir: /usr/src/app
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - "8001:8001"
+    command: python -m http.server 8001
+
+
+# Dockerfile
+
+FROM python:3.10-slim
+
+# 1) Dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 2) Copiar y pip install solo requirements primero (cacheo)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 3) Copiar todo el proyecto
+COPY . .
+
+# 4) Preprocesar / aumentar dataset y entrenar todos los modelos
+RUN python ai/process_midi.py \
+ && python ai/process_midi_happy.py \
+ && python ai/augment_transpose.py \
+ && python ai/augment_transpose_happy.py \
+ && python ai/train_full_corpus.py \
+ && python ai/train_melody_classifier.py \
+ && python ai/train_melody_classifier_happy.py \
+ && echo "✅ Preprocesamiento y entrenamiento completados"
+
+# 5) Exponer y comando por defecto
+EXPOSE 8000
+CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+# 1. Ir a la carpeta del proyecto
+cd C:\Users\Asier\Documents\PFG\prog_melody
+
+# 2. Activar entorno virtual
+venv\Scripts\activate
+
+# 3. Instalar dependencias
+pip install -r requirements.txt
+
+# 4. Procesar y aumentar tu dataset “sad”
+cd ai
+
+python process_midi.py 
+python process_midi_happy.py
+
+python augment_transpose.py   
+python augment_transpose_happy.py    
+
+# 5. Pre-entrenamiento con tu corpus amplio (Zelda, etc.)
+python train_full_corpus.py   
+
+# 6. Fine-tuning en “sad” + pasos 3 y 4
+python train_melody_classifier.py 
+python train_melody_classifier_happy.py 
+
+# 7. Levantar el backend
+
+cd C:\Users\Asier\Documents\PFG\prog_melody
+
+uvicorn backend.app:app --reload
+
+http://127.0.0.1:8000/docs
+
+# Puedes comprobar Swagger en http://127.0.0.1:8000/docs
+
+# 8. Levantar el frontend en otra terminal
+cd C:\Users\Asier\Documents\PFG\prog_melody\frontend
+
+python -m http.server 8001
+
+# Accede en http://localhost:8001
+
+
+ 
+# Extra. Para ver los usuarios de la base de datos
+cd C:\Users\Asier\Documents\PFG\prog_melody
+C:\sqlite\sqlite3.exe users.db
+.tables      
+SELECT * FROM users;
+
+DELETE FROM valoraciones;
+
+
+
+DOCKER:
+
+cd C:\Users\Asier\Documents\PFG\prog_melody
+
+docker-compose down
+
+docker-compose up --build
+
+
+#requirements
+
+bcrypt==3.2.0
+fastapi
+uvicorn
+mido
+pandas
+numpy
+tensorflow==2.15.0           
+scikit-learn          
+pickle-mixin           
+passlib[bcrypt]
+python-jose[cryptography]
+sqlalchemy
+python-multipart
+matplotlib
+
+

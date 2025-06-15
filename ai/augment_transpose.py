@@ -11,6 +11,8 @@ with open(IN_PATH, "r") as f:
 augmented = {}
 
 # Para cada escala y cada melodía, generamos 12 transposiciones
+
+
 for scale, block in raw.items():
     for note in block.get("melodias", []):
         orig = note["note"]

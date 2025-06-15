@@ -46,10 +46,10 @@ class ValoracionRequest(BaseModel):
     puntuacion: int
 
 
-# --------- GENERAR MELODÍA ---------
+
 @app.post("/generate")
 async def generate_melody(request_data: MelodyRequest, request: Request):
-    # extraer usuario (si hay)
+    # extraer usuario
     token = request.headers.get("Authorization")
     username = None
     if token and token.startswith("Bearer "):
@@ -78,7 +78,7 @@ async def generate_melody(request_data: MelodyRequest, request: Request):
         generate_music(scale_key, output_path=tmp_path)
     except Exception as e:
         import traceback; traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"No se pudo generar música: {e}")
+        raise HTTPException(status_code=500, detail=f"No se ha podido generar música: {e}")
 
     # nombre definitivo
     if username:
@@ -100,8 +100,6 @@ async def generate_melody(request_data: MelodyRequest, request: Request):
 
     return FileResponse(final_path, filename=final_name, media_type="audio/midi")
 
-
-# --------- AUTENTICACIÓN & USUARIOS ---------
 @app.post("/register")
 def register(username: str = Form(...), password: str = Form(...)):
     hashed = hash_password(password)
@@ -147,6 +145,9 @@ def descargar_melodia(filename: str):
 
 
 # --------- SUBIR MELODÍA PÚBLICA ---------
+
+
+
 @app.post("/melodias/upload")
 async def subir_melodia(file: UploadFile = File(...), username: str = Depends(get_current_user)):
     if not file.filename.endswith(".mid"):
@@ -158,6 +159,8 @@ async def subir_melodia(file: UploadFile = File(...), username: str = Depends(ge
 
 
 # --------- VALORACIONES ---------
+
+
 @app.post("/valorar")
 def valorar_melodia(valoracion: ValoracionRequest, username: str = Depends(get_current_user)):
     if not (1 <= valoracion.puntuacion <= 5):
@@ -214,3 +217,4 @@ def descargar_melodia_personal(filename: str, username: str = Depends(get_curren
     if os.path.exists(path):
         return FileResponse(path, filename=filename, media_type="audio/midi")
     raise HTTPException(status_code=404, detail="Archivo no encontrado")
+

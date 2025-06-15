@@ -35,7 +35,7 @@ python augment_transpose_happy.py
 # 5. Pre-entrenamiento con tu corpus amplio (Zelda, etc.)
 python train_full_corpus.py   
 
-# 6. Fine-tuning en “sad” + pasos 3 y 4
+# 6. Fine-tuning
 python train_melody_classifier.py 
 python train_melody_classifier_happy.py 
 
@@ -68,7 +68,7 @@ DELETE FROM valoraciones;
 
 
 
-DOCKER:
+# DOCKER
 
 cd C:\Users\Asier\Documents\PFG\prog_melody
 

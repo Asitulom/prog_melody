@@ -26,7 +26,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Crear tabla de usuarios
+
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +35,6 @@ def init_db():
     )
     """)
 
-    # Crear tabla de valoraciones
     c.execute("""
     CREATE TABLE IF NOT EXISTS valoraciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,21 +58,27 @@ def init_db():
     conn.close()
 
 # Hashear contraseña
+
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-# Verificar contraseña
 def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 # Crear token de acceso
+
+
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+
 # Obtener usuario desde el token
+
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

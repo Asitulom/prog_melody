@@ -5,7 +5,7 @@ import os
 import json
 from collections import defaultdict
 
-# Definición de escalas (solo mayores por ahora)
+# Definición de escalas 
 SCALES = {
     "AMAJOR":  ["A",  "B",  "C#", "D",  "E",  "F#", "G#"],
     "A#MAJOR": ["A#", "C",  "D",  "D#", "F",  "G",  "A"],

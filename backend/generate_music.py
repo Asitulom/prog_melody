@@ -15,7 +15,8 @@ from mido import MidiFile, MidiTrack, Message
 BASE_DIR             = os.path.dirname(os.path.abspath(__file__))
 AI_DIR               = os.path.join(BASE_DIR, '..', 'ai')
 
-# Triads & progresiones (idéntico a antes)
+# Triads & progresiones 
+
 LOWER_BOUND     = 24   # C3
 UPPER_BOUND     = 84   # C6
 TICKS_PER_BEAT  = 384
@@ -63,11 +64,9 @@ def semitone_offset(from_scale: str, to_scale: str) -> int:
     return diff if diff <= 6 else diff - 12
 
 # —————————————————————————————————————————————————————————————————————————
+
 def load_pipeline(scale_type: str):
-    """
-    Carga el modelo LSTM y scalers para 'minor' o 'major',
-    así como el JSON de datos correspondiente.
-    """
+  
     if scale_type == 'major':
         model_path   = os.path.join(AI_DIR, 'melody_model_happy.h5')
         note_scl_p   = os.path.join(AI_DIR, 'note_scaler_happy.pkl')
@@ -256,7 +255,9 @@ def create_midi_file(
     mid.save(output_path)
     print(f'✅ Música guardada en {output_path}')
 
-# —————————————————————————————————————————————————————————————————————————
+# ——————————————————————————————————————————————————————————————————————
+
+
 def generate_music(
     scale: str,
     output_path: str = 'generated_music.mid'
@@ -264,7 +265,6 @@ def generate_music(
     target = scale.upper()
     if not target.endswith(('MINOR','MAJOR')):
         target = f"{target}MINOR"
-
     chords, cdurs, cvels = build_triad_chords(target)
     melody, mdurs, mvels = generate_melody(target)
     create_midi_file(chords, cdurs, cvels, melody, mdurs, mvels, output_path)
